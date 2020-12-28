@@ -21,7 +21,7 @@ always @ (posedge clk) begin
         wb_rd_addr <= `RegAddrZero;
         wb_rd_enable <= `WriteDisable;
     end
-    else if (rdy || stall_or_not) begin
+    else if (rdy || !stall_or_not) begin
         wb_rd_data <= mem_rd_data;
         wb_rd_addr <= mem_rd_addr;
         wb_rd_enable <= mem_rd_enable;

@@ -15,7 +15,7 @@ always @ (posedge clk) begin
     if (rst == `ResetEnable) begin
         id_inst <= `ZERO_WORD;
     end
-    else if (rdy || stall_or_not) begin
+    else if (rdy || !stall_or_not) begin
         id_pc <= if_pc;
         id_inst <= if_inst;
     end

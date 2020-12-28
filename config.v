@@ -1,4 +1,5 @@
 `define ZERO_WORD 32'h00000000
+`define ONE_WORD 32'h00000001
 
 `define InstLen 32
 `define AddrLen 32
