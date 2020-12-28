@@ -10,7 +10,8 @@ module mem(
 
     output reg [`RegLen - 1 : 0] rd_data_o,
     output reg [`RegAddrLen - 1 : 0] rd_addr_o,
-    output reg rd_enable_o
+    output reg rd_enable_o,
+    output wire [`MemStallLen - 1 : 0] mem_stall;
     );
 
 always @ (*) begin
@@ -23,6 +24,7 @@ always @ (*) begin
         rd_data_o = rd_data_i;
         rd_addr_o = rd_addr_i;
         rd_enable_o = rd_enable_i;
+        mem_stall = `MemStallZero;
     end
 end
 

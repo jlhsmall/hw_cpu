@@ -2,7 +2,7 @@
 `include "config.v"
 module ex(
     input wire rst,
-
+    input wire rdy,
     input wire [`RegLen - 1 : 0] reg1,
     input wire [`RegLen - 1 : 0] reg2,
     input wire [`RegLen - 1 : 0] Imm,
@@ -23,7 +23,7 @@ module ex(
         if (rst == `ResetEnable) begin
             res = `ZERO_WORD;
         end
-        else begin
+        else if (rdy) begin
             case (aluop)
                 `EXE_OR:
                     res = reg1 | reg2; 
@@ -37,7 +37,7 @@ module ex(
         if (rst == `ResetEnable) begin
             rd_enable_o = `WriteDisable;
         end
-        else begin 
+        else if (rdy) begin 
             rd_addr = rd;
             rd_enable_o = rd_enable;
             case (alusel)
