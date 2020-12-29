@@ -15,24 +15,12 @@ reg [`InstLen - 1 : 0] inst;
 reg [3 : 0] cnt;
 always @ (posedge clk) begin
     case (cnt)
-        3'b000: begin
-            cnt <= 3'b001;
-            inst[7:0] <= mem_din;
-        end
-        3'b001: begin
-            cnt <= 3'b001;
-            inst[15:8] <= mem_din;
-        end
-        3'b010: begin
-            cnt <= 3'b001;
-            inst[23:16] <= mem_din;
-        end
-        3'b011: begin
-            cnt <= 3'b001;
-            inst[31:24] <= mem_din;
-        end
-    cnt <= cnt + 1;
+        3'b000: inst[7:0] <= mem_din;
+        3'b001: inst[15:8] <= mem_din;
+        3'b010: inst[23:16] <= mem_din;
+        3'b011: inst[31:24] <= mem_din;
     endcase
+    cnt <= cnt + 1;
 end
 always @ (*) begin
     if (cnt == 4) begin

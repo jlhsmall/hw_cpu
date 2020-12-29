@@ -114,11 +114,11 @@ ex ex0(.rst(rst_in), .rdy(rdy_in),
       
 ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .stall_or_not(stall_or_not),
               .ex_rd_data(ex_rd_data), .ex_rd_addr(ex_rd_addr), .ex_op(ex_op_o),
-              .mem_rd_data(mem_rd_data_i), .mem_rd_addr(mem_rd_addr_i), .mem_op(mem_op), .mem_stall(mem_stall));
+              .mem_rd_data(mem_rd_data_i), .mem_rd_addr(mem_rd_addr_i), .mem_op(mem_op));
               
 mem mem0(.rst(rst_in), .rdy(rdy_in),
-        .rd_data_i(mem_rd_data_i), .rd_addr_i(mem_rd_addr_i), .rd_enable_i(mem_rd_enable_i),
-        .rd_data_o(mem_rd_data_o), .rd_addr_o(mem_rd_addr_o), .rd_enable_o(mem_rd_enable_o));
+        .rd_data_i(mem_rd_data_i), .rd_addr_i(mem_rd_addr_i), .op(mem_op),
+        .rd_data_o(mem_rd_data_o), .rd_addr_o(mem_rd_addr_o), .rd_enable_o(mem_rd_enable_o), .mem_stall(mem_stall));
         
 mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .stall_or_not(stall_or_not),
               .mem_rd_data(mem_rd_data_o), .mem_rd_addr(mem_rd_addr_o), .mem_rd_enable(mem_rd_enable_o),

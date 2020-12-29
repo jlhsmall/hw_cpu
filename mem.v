@@ -6,7 +6,7 @@ module mem(
     input wire rdy,
     input wire [`RegLen - 1 : 0] rd_data_i,
     input wire [`RegAddrLen - 1 : 0] rd_addr_i,
-    input wire rd_enable_i,
+    input wire [`OpLen - 1 : 0] op;
 
     output reg [`RegLen - 1 : 0] rd_data_o,
     output reg [`RegAddrLen - 1 : 0] rd_addr_o,
@@ -17,14 +17,32 @@ module mem(
 always @ (*) begin
     if (rst == `ResetEnable) begin
         rd_data_o = `ZERO_WORD;
-        rd_addr_o = `RegAddrLen'h0;
-        rd_enable_o = `WriteDisable;
+        rd_addr_o = `RegAddrZero;
+        rd_enable_o = `False;
     end
-    else begin
-        rd_data_o = rd_data_i;
-        rd_addr_o = rd_addr_i;
-        rd_enable_o = rd_enable_i;
-        mem_stall = `MemStallZero;
+    else if(rdy) begin
+        if (op >= `ADDI) begin
+            rd_addr_o = rd_addr_i;
+            rd_enable_o = `True;
+        end
+        else begin
+            rd_addr_o = `RegAddrZero;
+            rd_enable_o = `False;
+            rd_data_o = `ZERO_WORD;
+        end
+        case (op)
+            LB:
+            LH:
+            LW:
+            LBU:
+            LHU:
+            SB:
+            SH:
+            SW:
+            default: begin
+                if (op >= ADDI) rd_data_o = rd_data_i;
+            end
+        endcase
     end
 end
 
