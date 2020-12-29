@@ -5,7 +5,8 @@ module if_id(
     input wire clk, 
     input wire rst,
     input wire rdy,
-    input wire stall_or_not,
+    input wire if_id_stall,
+    output reg if_id_rdy,
     input wire [`AddrLen - 1 : 0] if_pc,
     input wire [`InstLen - 1 : 0] if_inst,
     output reg [`AddrLen - 1 : 0] id_pc,
@@ -13,11 +14,15 @@ module if_id(
     
 always @ (posedge clk) begin
     if (rst == `ResetEnable) begin
+        if_id_rdy <= `False;
         id_inst <= `ZERO_WORD;
+        id_pc <= `ZERO_WORD;
     end
-    else if (rdy || !stall_or_not) begin
+    else if (rdy && !if_id_stall) begin
+        if_id_rdy <= `True;
         id_pc <= if_pc;
         id_inst <= if_inst;
     end
+    else if_id_rdy <= `False;
 end
 endmodule

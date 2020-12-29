@@ -3,6 +3,7 @@
 module ex(
     input wire rst,
     input wire rdy,
+    input wire id_ex_rdy,
     input wire [`AddrLen - 1 : 0] pc,
     input wire [`RegLen - 1 : 0] reg1,
     input wire [`RegLen - 1 : 0] reg2,
@@ -10,15 +11,26 @@ module ex(
     input wire [`RegAddrLen - 1 : 0] rd,
     input wire [`OpLen - 1 : 0] op,
 
-    output wire [`RegLen - 1 : 0] rd_data_o,
-    output wire [`RegAddrLen - 1 : 0] rd_addr,
-    output wire op_o,
+    output reg [`RegLen - 1 : 0] rd_data_o,
+    output reg [`RegAddrLen - 1 : 0] rd_addr,
+    output reg [`AddrLen - 1 : 0] mem_addr,
+    output reg [`OpLen - 1 : 0] op_o,
 
-    output wire [`RegLen - 1 : 0] npc,
-    output wire jump_or_not
+    output reg [`RegLen - 1 : 0] npc,
+    output reg jump_or_not,
+    output wire ex_stall
     );
-    wire 
-    always @ (*) begin
+always @ (*) begin
+    if (rst) begin
+        rd_data_o = `ZERO_WORD;
+        rd_addr = `RegAddrZero;
+        op_o = `NOP;
+        npc = `ZERO_WORD;
+        jump_or_not = `False;
+        ex_stall = `False;
+    end
+    else if (rdy && id_ex_rdy) begin
+        ex_stall = `False;
         op_o = op;
         case (op)
             `LUI: begin
@@ -82,55 +94,58 @@ module ex(
                 jump_or_not = `True;
             end
             `LB: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `LH: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `LW: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `LH: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `LBU: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `LHU: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `SB: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
+                rd_data_o = reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `SH: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
+                rd_data_o = reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
             end
             `SW: begin
-                rd_data_o = reg1 + Imm;
+                mem_addr = reg1 + Imm;
+                rd_data_o = reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = False;
@@ -251,5 +266,7 @@ module ex(
             end
         endcase
     end
+    else ex_stall = `False;
+end
     
 endmodule

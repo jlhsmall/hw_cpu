@@ -23,7 +23,7 @@ module register(
 //write 1
 always @ (posedge clk) begin
     if (rst == `ResetDisable && write_enable == `WriteEnable) begin
-        if (write_addr != `RegAddrLen'h0) //not zero register
+        if (write_addr != `RegAddrZero) //not zero register
             regs[write_addr] <= write_data;
     end
 end

@@ -4,11 +4,11 @@
 module id(
     input wire rst,
     input wire rdy,
+    input wire if_id_rdy,
     input wire [`AddrLen - 1 : 0] pc,
     input wire [`InstLen - 1 : 0] inst,
     input wire [`RegLen - 1 : 0] reg1_data_i,
     input wire [`RegLen - 1 : 0] reg2_data_i,
-
     //To Register
     output reg [`RegAddrLen - 1 : 0] reg1_addr_o,
     output reg reg1_read_enable,
@@ -16,12 +16,13 @@ module id(
     output reg reg2_read_enable,
 
     //To next stage
-    output wire [`AddrLen - 1 : 0] pc_o,
-    output wire [`RegLen - 1 : 0] reg1,
-    output wire [`RegLen - 1 : 0] reg2,
-    output wire [`RegLen - 1 : 0] Imm,
-    output wire [`RegAddrLen - 1 : 0] rd,
-    output wire [`OpCodeLen - 1 : 0] op
+    output reg [`AddrLen - 1 : 0] pc_o,
+    output reg [`RegLen - 1 : 0] reg1,
+    output reg [`RegLen - 1 : 0] reg2,
+    output reg [`RegLen - 1 : 0] Imm,
+    output reg [`RegAddrLen - 1 : 0] rd,
+    output reg [`OpCodeLen - 1 : 0] op,
+    output wire id_stall
     );
     
 //Decode: Get opcode, imm, rd, and the addr of rs1&rs2
@@ -38,25 +39,32 @@ end
 always @ (*) begin
     if(rst) begin
         reg1_addr_o = `RegAddrZero;
+        reg1_read_enable = `False;
         reg2_addr_o = `RegAddrZero;
+        reg2_read_enable = `False;
+        pc_o = `ZERO_WORD;
+        reg1 = `ZERO_WORD;
+        reg2 = `ZERO_WORD;
         Imm = `ZERO_WORD;
-        rd = `ZERO_WORD; 
+        rd = `RegAddrZero; 
         op = `NOP;
+        id_stall = `False;
     end
-    else if (rdy) begin
+    else if (rdy && if_id_rdy) begin
+        id_stall = `False;
         pc_o = pc;
         case (inst[6:0])
             7'b0110111: begin
                 op = `LUI;
                 rd = inst[11:7];
-                imm = {inst[31:12], {12{1'b0}}};
+                imm = {inst[31:12], {12'h000}};
                 reg1_read_enable = `False;
                 reg2_read_enable = `False;
             end
             7'b0010111: begin
                 op = `AUIPC;
                 rd = inst[11:7];
-                imm = {inst[31:12], {12{1'b0}}};
+                imm = {inst[31:12], {12'h000}};
                 reg1_read_enable = `False;
                 reg2_read_enable = `False;
             end
@@ -157,19 +165,19 @@ always @ (*) begin
                     3'b000: begin
                         op = `SB;
                         reg1_read_enable = `True;
-                        reg2_read_enable = `False;
+                        reg2_read_enable = `True;
                         imm = {21{inst[31]}, inst[30:25], inst[11:7]};
                     end
                     3'b001: begin
                         op = `SH;
                         reg1_read_enable = `True;
-                        reg2_read_enable = `False;
+                        reg2_read_enable = `True;
                         imm = {21{inst[31]}, inst[30:25], inst[11:7]};
                     end
                     3'b010: begin
                         op = `SW;
                         reg1_read_enable = `True;
-                        reg2_read_enable = `False;
+                        reg2_read_enable = `True;
                         imm = {21{inst[31]}, inst[30:25], inst[11:7]};
                     end
                 endcase
@@ -288,6 +296,7 @@ always @ (*) begin
             end
         endcase
     end
+    else id_stall = `False;
 end
 
 always @ (*) begin

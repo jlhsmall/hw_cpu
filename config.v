@@ -1,5 +1,6 @@
 `define ZERO_WORD 32'h00000000
 `define ONE_WORD 32'h00000001
+`define ZERO_BYTE 8'h00
 
 `define InstLen 32
 `define AddrLen 32
@@ -75,3 +76,10 @@
 `define IfStallLen 2
 `define MemStallZero 2'b00
 `define IfStallZero 2'b00
+
+//MemCtrl
+`define S_FREE 2'b00
+`define S_IF 2'b01
+`define S_LOAD 2'b10
+`define S_STORE 2'b11
+
