@@ -70,7 +70,6 @@
 `define OR 6'b101001
 `define AND 6'b101010
 
-
 //Stall
 `define MemStallLen 2
 `define IfStallLen 2
@@ -83,3 +82,5 @@
 `define S_LOAD 2'b10
 `define S_STORE 2'b11
 
+//CACHE
+`define CacheSize 256

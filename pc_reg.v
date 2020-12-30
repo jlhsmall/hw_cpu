@@ -8,6 +8,8 @@ module pc_reg(
     input wire pc_reg_stall,
     output wire pc_reg_rdy,
 
+    input wire jump_or_not;
+    input wire npc;
     output reg [`AddrLen - 1 : 0] pc,
     /*,
     output reg chip_enable*/);
@@ -18,6 +20,7 @@ always @ (posedge clk) begin
         pc_reg_rdy <= `false;
     end
     else if (rdy && !pc_reg_stall) begin
+        if()
         pc <= pc + 4;
         pc_reg_rdy <= `True;
     end

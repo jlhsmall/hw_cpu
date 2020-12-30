@@ -9,12 +9,20 @@ module id(
     input wire [`InstLen - 1 : 0] inst,
     input wire [`RegLen - 1 : 0] reg1_data_i,
     input wire [`RegLen - 1 : 0] reg2_data_i,
+
+    //EX Forwarding
+    input wire [`RegLen - 1 : 0] rd_data_ex,
+    input wire [`RegAddrLen - 1 : 0] rd_addr_ex,
+    input wire [`OpLen - 1 : 0] op_ex,
+    //MEM Forwarding
+    input wire load_or_not;
+    input wire [`RegLen - 1 : 0] rd_data_mem,
+    input wire [`RegAddrLen - 1 : 0] rd_addr_mem,
     //To Register
     output reg [`RegAddrLen - 1 : 0] reg1_addr_o,
-    output reg reg1_read_enable,
+    output wire reg1_read_enable,
     output reg [`RegAddrLen - 1 : 0] reg2_addr_o,
-    output reg reg2_read_enable,
-
+    output wire reg2_read_enable,
     //To next stage
     output reg [`AddrLen - 1 : 0] pc_o,
     output reg [`RegLen - 1 : 0] reg1,
@@ -27,9 +35,9 @@ module id(
     
 //Decode: Get opcode, imm, rd, and the addr of rs1&rs2
 always @ (*) begin
-    if (rst == `ResetEnable) begin
-        reg1_addr_o = `ZeroReg;
-        reg2_addr_o = `ZeroReg;
+    if (rst) begin
+        reg1_addr_o = `RegAddrZero;
+        reg2_addr_o = `RegAddrZero;
     end
     else begin
         reg1_addr_o = inst[19 : 15];
@@ -296,16 +304,38 @@ always @ (*) begin
             end
         endcase
     end
-    else id_stall = `False;
+    else begin 
+        id_stall = `False;
+        reg1_read_enable = `False;
+        reg2_read_enable = `False;
+    end
 end
 
 always @ (*) begin
     if (rst || !reg1_read_enable) reg1 = `ZERO_WORD;
+    else if (rd_addr_ex == reg1_addr) begin
+        if (ex_op >= `LB) id_stall = `True;
+        else if (ex_op >= `ADDI) reg1 = rd_data_ex;
+        else reg1 = reg1_data_i;
+    end
+    else if (rd_addr_mem == reg1_addr) begin
+        if (load_or_not) reg1 = rd_data_mem;
+        else reg1 = reg1_data_i;
+    end
     else reg1 = reg1_data_i;
 end
 
 always @ (*) begin
     if (rst || !reg2_read_enable) reg2 = `ZERO_WORD;
+    else if (rd_addr_ex == reg2_addr) begin
+        if (ex_op >= `LB) id_stall = `True;
+        else if (ex_op >= `ADDI) reg2 = rd_data_ex;
+        else reg2 = reg2_data_i;
+    end
+    else if (rd_addr_mem == reg2_addr) begin
+        if (load_or_not) reg2 = rd_data_mem;
+        else reg2 = reg2_data_i;
+    end
     else reg2 = reg2_data_i;
 end
 endmodule

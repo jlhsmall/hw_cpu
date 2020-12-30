@@ -27,6 +27,7 @@ module mem_ctrl(
 reg [2:0] cnt;
 reg [2:0] state, next_state;
 reg [`RegLen - 1 : 0] out_data;
+
 always @ (*) begin
     case (state)
         `S_LOAD: begin

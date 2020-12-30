@@ -9,11 +9,11 @@ module register(
     input wire [`RegAddrLen - 1 : 0] write_addr,
     input wire [`RegLen - 1 : 0] write_data,
     //read 1
-    input wire read_enable1,   
+    input wire read_enable1,
     input wire [`RegAddrLen - 1 : 0] read_addr1,
     output reg [`RegLen - 1 : 0] read_data1,
     //read 2
-    input wire read_enable2,   
+    input wire read_enable2,
     input wire [`RegAddrLen - 1 : 0] read_addr2,
     output reg [`RegLen - 1 : 0] read_data2
     );

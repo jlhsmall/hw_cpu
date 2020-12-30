@@ -100,8 +100,8 @@ wire [`RegAddrLen - 1 : 0] write_addr;
 wire [`RegLen - 1 : 0] write_data;
 
 //STALL
-wire pc_reg_stall, if_id_stall, id_ex_stall, ex_mem_stall;
-wire pc_reg_rdy, if_id_rdy, id_ex_rdy, ex_mem_rdy;
+wire pc_reg_stall, if_id_stall, id_ex_stall, ex_mem_stall, mem_wb_stall;
+wire pc_reg_rdy, if_id_rdy, id_ex_rdy, ex_mem_rdy, mem_wb_rdy;
 wire if_stall, id_stall, ex_stall, mem_stall;
 
 
@@ -118,6 +118,8 @@ if_id if_id0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .if_id_stall(if_id_stall)
 
 id id0(.rst(rst_in), .rdy(rdy_in), .if_id_rdy(if_id_rdy), 
       .pc(id_pc), .inst(id_inst), .reg1_data_i(reg1_data), .reg2_data_i(reg2_data), 
+      .rd_data_ex(ex_rd_data), .rd_addr_ex(ex_rd_addr), .op_ex(ex_op_o), 
+      .load_or_not(load_or_not), .rd_data_mem(mem_rd_data_o), .rd_addr_mem(mem_rd_addr_o), 
       .reg1_addr_o(reg1_addr), .reg1_read_enable(reg1_read_enable), .reg2_addr_o(reg2_addr), .reg2_read_enable(reg2_read_enable),
       .pc_o(id_pc_o), .reg1(id_reg1), .reg2(id_reg2), .Imm(id_Imm), .rd(id_rd), .op(op));
       
@@ -145,7 +147,7 @@ mem mem0(.rst(rst_in), .rdy(rdy_in), .ex_mem_rdy(ex_mem_rdy),
         .mem_addr_o(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),
         .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable));
         
-mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
+mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .mem_wb_stall(mem_wb_stall), mem_wb_rdy(mem_wb_rdy), 
               .mem_rd_data(mem_rd_data_o), .mem_rd_addr(mem_rd_addr_o), .mem_rd_enable(mem_rd_enable_o),
               .wb_rd_data(write_data), .wb_rd_addr(write_addr), .wb_rd_enable(write_enable));
 
@@ -157,7 +159,7 @@ mem_ctrl mem_ctrl0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
 
 stall stall0(.rst(rst_in), .rdy(rdy_in),
             .if_stall(if_stall), .id_stall(id_stall), .ex_stall(ex_stall), .mem_stall(mem_stall),
-            .pc_reg_stall(pc_reg_stall), .if_id_stall(if_id_stall), .id_ex_stall(id_ex_stall), .ex_mem_stall(ex_mem_stall));
+            .pc_reg_stall(pc_reg_stall), .if_id_stall(if_id_stall), .id_ex_stall(id_ex_stall), .ex_mem_stall(ex_mem_stall), .mem_wb_stall(mem_wb_stall));
 /*always @(posedge clk_in)
   begin
     if (rst_in)

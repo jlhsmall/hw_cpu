@@ -28,7 +28,7 @@ always @ (posedge clk) begin
         mem_op <= `NOP;
     end
     else if (rdy && !ex_mem_stall) begin
-        ex_mem_rdy = `True
+        ex_mem_rdy = `True;
         mem_rd_data <= ex_rd_data;
         mem_rd_addr <= ex_rd_addr;
         mem_addr_i <= mem_addr_ex;
