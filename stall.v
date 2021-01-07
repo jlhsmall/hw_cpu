@@ -8,22 +8,20 @@ module stall (
     input wire if_stall, id_stall, ex_stall, mem_stall,
     output reg pc_reg_stall, if_id_stall, id_ex_stall ,ex_mem_stall, mem_wb_stall
 );
-reg [1:0] if_cnt;
 always @ (*) begin
-    mem_wb_stall = mem_stall;
-    ex_mem_stall =ex_stall || mem_wb_stall;
-    id_ex_stall = id_stall || ex_stall;
-    if_id_stall = if_stall || id_ex_stall;
-    if (if_stall) begin
-        if_cnt = 2'b10;
-        pc_reg_stall = `True;
+    if (rst) begin
+        mem_wb_stall = `False;
+        ex_mem_stall = `False;
+        id_ex_stall = `False;
+        if_id_stall = `False;
+        pc_reg_stall = `False;
     end
-    else pc_reg_stall = if_cnt || if_id_stall;
-end
-always @ (negedge clk) begin
-    if (rdy && if_cnt) if_cnt = if_cnt - 1;
-end
-always @ (posedge clk) begin
-    if (rst) if_cnt = 2'b00;
+    else begin
+        mem_wb_stall = mem_stall;
+        ex_mem_stall = ex_stall || mem_wb_stall;
+        id_ex_stall = id_stall || ex_stall;
+        if_id_stall = if_stall || id_ex_stall;
+        pc_reg_stall = if_id_stall;
+    end
 end
 endmodule

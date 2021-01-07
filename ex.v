@@ -20,13 +20,15 @@ module ex(
     output reg jump_or_not,
     output reg ex_stall
     );
+reg last_jump_or_not;
 always @ (*) begin
-    if (rst) begin
+    if (rst || last_jump_or_not) begin
         rd_data_o = `ZERO_WORD;
         rd_addr = `RegAddrZero;
         op_o = `NOP;
         npc = `ZERO_WORD;
         jump_or_not = `False;
+        last_jump_or_not = `False;
         ex_stall = `False;
     end
     else if (rdy && id_ex_rdy) begin
@@ -265,6 +267,7 @@ always @ (*) begin
                 jump_or_not = `False;
             end
         endcase
+        last_jump_or_not = jump_or_not;
     end
     else ex_stall = `False;
 end

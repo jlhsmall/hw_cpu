@@ -37,31 +37,36 @@ always @ (*) begin
         store_data = `ZERO_WORD;
     end
     else if (rdy) begin
-        if (mem_enable) begin
-            mem_stall = `False;
-            case (op)
-                `LB: begin
-                    rd_data_o = {{24{load_data[7]}}, load_data[7:0]};
-                    rd_enable_o = `True;
-                end
-                `LH: begin
-                    rd_data_o = {{16{load_data[7]}}, load_data[15:0]};
-                    rd_enable_o = `True;
-                end
-                `LW: begin
-                    rd_data_o = load_data;
-                    rd_enable_o = `True;
-                end
-                `LBU: begin
-                    rd_data_o = {24'h000000, load_data[7:0]};
-                    rd_enable_o = `True;
-                end
-                `LHU: begin
-                    rd_data_o = {16'h0000, load_data[15:0]};
-                    rd_enable_o = `True;
-                end
-                default: rd_enable_o = `False;
-            endcase
+        if (load_or_not || store_or_not) begin
+            if (mem_enable) begin
+                mem_stall = `False;
+                case (op)
+                    `LB: begin
+                        rd_data_o = {{24{load_data[7]}}, load_data[7:0]};
+                        rd_enable_o = `True;
+                    end
+                    `LH: begin
+                        rd_data_o = {{16{load_data[7]}}, load_data[15:0]};
+                        rd_enable_o = `True;
+                    end
+                    `LW: begin
+                        rd_data_o = load_data;
+                        rd_enable_o = `True;
+                    end
+                    `LBU: begin
+                        rd_data_o = {24'h000000, load_data[7:0]};
+                        rd_enable_o = `True;
+                    end
+                    `LHU: begin
+                        rd_data_o = {16'h0000, load_data[15:0]};
+                        rd_enable_o = `True;
+                    end
+                    default: rd_enable_o = `False;
+                endcase
+            end
+            else begin
+                mem_stall = `True;
+            end
         end
         else if(ex_mem_rdy) begin
             if (op >= `ADDI) begin

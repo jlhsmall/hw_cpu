@@ -15,14 +15,16 @@ module register(
     //read 2
     input wire read_enable2,
     input wire [`RegAddrLen - 1 : 0] read_addr2,
-    output reg [`RegLen - 1 : 0] read_data2
+    output reg [`RegLen - 1 : 0] read_data2,
+
+    input wire jump_or_not
     );
     
     reg[`RegLen - 1 : 0] regs[`RegNum - 1 : 0];
     
 //write 1
 always @ (posedge clk) begin
-    if (rst == `ResetDisable && write_enable == `WriteEnable) begin
+    if (!rst && write_enable == `WriteEnable) begin
         if (write_addr != `RegAddrZero) //not zero register
             regs[write_addr] <= write_data;
     end
@@ -30,7 +32,7 @@ end
 
 //read 1
 always @ (*) begin
-    if (rst == `ResetDisable && read_enable1 == `ReadEnable) begin
+    if (!rst && !jump_or_not && read_enable1 == `ReadEnable) begin
         if (read_addr1 == `RegAddrLen'h0)
             read_data1 = `ZERO_WORD;
         else if (read_addr1 == write_addr && write_enable == `WriteEnable)
@@ -45,7 +47,7 @@ end
 
 //read 2
 always @ (*) begin
-    if (rst == `ResetDisable && read_enable2 == `ReadEnable) begin
+    if (!rst && !jump_or_not && read_enable2 == `ReadEnable) begin
         if (read_addr2 == `RegAddrLen'h0)
             read_data2 = `ZERO_WORD;
         else if (read_addr2 == write_addr && write_enable == `WriteEnable)

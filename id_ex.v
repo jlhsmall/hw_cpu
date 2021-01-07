@@ -20,7 +20,8 @@ module id_ex(
     output reg [`RegLen - 1 : 0] ex_reg2,
     output reg [`RegLen - 1 : 0] ex_imm,
     output reg [`RegAddrLen - 1 : 0] ex_rd,
-    output reg [`OpLen - 1 : 0] ex_op
+    output reg [`OpLen - 1 : 0] ex_op,
+    input wire  jump_or_not
     );
 
 always @ (posedge clk) begin

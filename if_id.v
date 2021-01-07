@@ -10,10 +10,12 @@ module if_id(
     input wire [`AddrLen - 1 : 0] if_pc,
     input wire [`InstLen - 1 : 0] if_inst,
     output reg [`AddrLen - 1 : 0] id_pc,
-    output reg [`InstLen - 1 : 0] id_inst);
+    output reg [`InstLen - 1 : 0] id_inst,
+    input wire jump_or_not
+    );
     
 always @ (posedge clk) begin
-    if (rst == `ResetEnable) begin
+    if (rst || jump_or_not) begin
         if_id_rdy <= `False;
         id_inst <= `ZERO_WORD;
         id_pc <= `ZERO_WORD;

@@ -30,12 +30,13 @@ module id(
     output reg [`RegLen - 1 : 0] imm,
     output reg [`RegAddrLen - 1 : 0] rd,
     output reg [`OpLen - 1 : 0] op,
-    output reg id_stall
+    output reg id_stall,
+    input wire jump_or_not
     );
     
 //Decode: Get opcode, imm, rd, and the addr of rs1&rs2
 always @ (*) begin
-    if (rst) begin
+    if (rst || jump_or_not) begin
         reg1_addr_o = `RegAddrZero;
         reg2_addr_o = `RegAddrZero;
     end
@@ -45,10 +46,8 @@ always @ (*) begin
     end
 end
 always @ (*) begin
-    if(rst) begin
-        reg1_addr_o = `RegAddrZero;
+    if(rst || jump_or_not) begin
         reg1_read_enable = `False;
-        reg2_addr_o = `RegAddrZero;
         reg2_read_enable = `False;
         pc_o = `ZERO_WORD;
         reg1 = `ZERO_WORD;
@@ -56,10 +55,8 @@ always @ (*) begin
         imm = `ZERO_WORD;
         rd = `RegAddrZero; 
         op = `NOP;
-        id_stall = `False;
     end
     else if (rdy && if_id_rdy) begin
-        id_stall = `False;
         pc_o = pc;
         case (inst[6:0])
             7'b0110111: begin
@@ -306,14 +303,14 @@ always @ (*) begin
         endcase
     end
     else begin 
-        id_stall = `False;
         reg1_read_enable = `False;
         reg2_read_enable = `False;
     end
 end
 
 always @ (*) begin
-    if (rst || !reg1_read_enable) reg1 = `ZERO_WORD;
+    id_stall = `False;
+    if (rst || jump_or_not || !reg1_read_enable) reg1 = `ZERO_WORD;
     else if (rd_addr_ex == reg1_addr_o) begin
         if (op_ex >= `LB) id_stall = `True;
         else if (op_ex >= `ADDI) reg1 = rd_data_ex;
@@ -324,10 +321,8 @@ always @ (*) begin
         else reg1 = reg1_data_i;
     end
     else reg1 = reg1_data_i;
-end
 
-always @ (*) begin
-    if (rst || !reg2_read_enable) reg2 = `ZERO_WORD;
+    if (rst || jump_or_not || !reg2_read_enable) reg2 = `ZERO_WORD;
     else if (rd_addr_ex == reg2_addr_o) begin
         if (op_ex >= `LB) id_stall = `True;
         else if (op_ex >= `ADDI) reg2 = rd_data_ex;
@@ -339,4 +334,5 @@ always @ (*) begin
     end
     else reg2 = reg2_data_i;
 end
+
 endmodule
