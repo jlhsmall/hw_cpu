@@ -6,8 +6,8 @@ module stall (
     input wire rst,
     input wire rdy,
     input wire if_stall, id_stall, ex_stall, mem_stall,
-    output wire pc_reg_stall, if_id_stall, id_ex_stall ,ex_mem_stall;
-)
+    output reg pc_reg_stall, if_id_stall, id_ex_stall ,ex_mem_stall, mem_wb_stall
+);
 reg [1:0] if_cnt;
 always @ (*) begin
     mem_wb_stall = mem_stall;

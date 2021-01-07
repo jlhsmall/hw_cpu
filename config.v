@@ -53,11 +53,6 @@
 `define ANDI 6'b011000
 `define SLLI 6'b011001
 `define SRLI 6'b011010
-`define XORI 6'b011011
-`define ORI 6'b011100
-`define ANDI 6'b011101
-`define SLLI 6'b011110
-`define SRLI 6'b011111
 `define SRAI 6'b100000
 `define ADD 6'b100001
 `define SUB 6'b100010

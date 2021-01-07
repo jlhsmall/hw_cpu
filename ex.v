@@ -7,7 +7,7 @@ module ex(
     input wire [`AddrLen - 1 : 0] pc,
     input wire [`RegLen - 1 : 0] reg1,
     input wire [`RegLen - 1 : 0] reg2,
-    input wire [`RegLen - 1 : 0] Imm,
+    input wire [`RegLen - 1 : 0] imm,
     input wire [`RegAddrLen - 1 : 0] rd,
     input wire [`OpLen - 1 : 0] op,
 
@@ -18,7 +18,7 @@ module ex(
 
     output reg [`RegLen - 1 : 0] npc,
     output reg jump_or_not,
-    output wire ex_stall
+    output reg ex_stall
     );
 always @ (*) begin
     if (rst) begin
@@ -34,13 +34,13 @@ always @ (*) begin
         op_o = op;
         case (op)
             `LUI: begin
-                rd_data_o = Imm;
+                rd_data_o = imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = `False;
             end
             `AUIPC: begin
-                rd_data_o = pc + Imm;
+                rd_data_o = pc + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
                 jump_or_not = `False;
@@ -48,221 +48,221 @@ always @ (*) begin
             `JAL: begin
                 rd_data_o = pc + 4;
                 rd_addr = rd;
-                npc = reg1 + Imm;
+                npc = reg1 + imm;
                 jump_or_not = `True;
             end
             `JALR: begin
                 rd_data_o = pc + 4;
                 rd_addr = rd;
-                npc = reg1 + Imm;
+                npc = reg1 + imm;
                 jump_or_not = `True;
             end
             `BEQ: begin
                 rd_data_o = `ZERO_WORD;
                 rd_addr = `RegAddrZero;
-                npc = reg1 == reg2 ? pc + Imm : pc + 4;
+                npc = reg1 == reg2 ? pc + imm : pc + 4;
                 jump_or_not = `True;
             end
             `BNE: begin
                 rd_data_o = `ZERO_WORD;
                 rd_addr = `RegAddrZero;
-                npc = reg1 != reg2 ? pc + Imm : pc + 4;
+                npc = reg1 != reg2 ? pc + imm : pc + 4;
                 jump_or_not = `True;
             end
             `BLT: begin
                 rd_data_o = `ZERO_WORD;
                 rd_addr = `RegAddrZero;
-                npc = ($signed(reg1)) < ($signed(reg2)) ? pc + Imm : pc + 4;
+                npc = ($signed(reg1)) < ($signed(reg2)) ? pc + imm : pc + 4;
                 jump_or_not = `True;
             end
             `BGE: begin
                 rd_data_o = `ZERO_WORD;
                 rd_addr = `RegAddrZero;
-                npc = ($signed(reg1)) >= ($signed(reg2)) ? pc + Imm : pc + 4;
+                npc = ($signed(reg1)) >= ($signed(reg2)) ? pc + imm : pc + 4;
                 jump_or_not = `True;
             end
             `BLTU: begin
                 rd_data_o = `ZERO_WORD;
                 rd_addr = `RegAddrZero;
-                npc = reg1 < reg2 ? pc + Imm : pc + 4;
+                npc = reg1 < reg2 ? pc + imm : pc + 4;
                 jump_or_not = `True;
             end
             `BGEU: begin
                 rd_data_o = `ZERO_WORD;
                 rd_addr = `RegAddrZero;
-                npc = reg1 >= reg2 ? pc + Imm : pc + 4;
+                npc = reg1 >= reg2 ? pc + imm : pc + 4;
                 jump_or_not = `True;
             end
             `LB: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `LH: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `LW: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `LH: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `LBU: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `LHU: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SB: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_data_o = reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SH: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_data_o = reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SW: begin
-                mem_addr = reg1 + Imm;
+                mem_addr = reg1 + imm;
                 rd_data_o = reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `ADDI: begin
-                rd_data_o = reg1 + Imm;
+                rd_data_o = reg1 + imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SLTI: begin
-                rd_data_o = ($signed(reg1)) < ($signed(Imm)) ;
+                rd_data_o = ($signed(reg1)) < ($signed(imm)) ;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SLTIU: begin
-                rd_data_o = reg1 < Imm;
+                rd_data_o = reg1 < imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `XORI: begin
-                rd_data_o = reg1 ^ Imm;
+                rd_data_o = reg1 ^ imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `ORI: begin
-                rd_data_o = reg1 | Imm;
+                rd_data_o = reg1 | imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `ANDI: begin
-                rd_data_o = reg1 & Imm;
+                rd_data_o = reg1 & imm;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SLLI: begin
-                rd_data_o = reg1 << Imm[4:0];
+                rd_data_o = reg1 << imm[4:0];
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SRLI: begin
-                rd_data_o = reg1 >> Imm[4:0];
+                rd_data_o = reg1 >> imm[4:0];
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SRAI: begin
-                rd_data_o = ($signed(reg1)) >>> Imm[4:0];
+                rd_data_o = ($signed(reg1)) >>> imm[4:0];
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `ADD: begin
                 rd_data_o = reg1 + reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SUB: begin
                 rd_data_o = reg1 - reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SLT: begin
                 rd_data_o = ($signed(reg1)) < ($signed(reg2)) ;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SLTU: begin
                 rd_data_o = reg1 < reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `XOR: begin
                 rd_data_o = reg1 ^ reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `OR: begin
                 rd_data_o = reg1 | reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `AND: begin
                 rd_data_o = reg1 & reg2;
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SLL: begin
                 rd_data_o = reg1 << reg2[4:0];
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SRL: begin
                 rd_data_o = reg1 >> reg2[4:0];
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
             `SRA: begin
                 rd_data_o = ($signed(reg1)) >>> reg2[4:0];
                 rd_addr = rd;
                 npc = `ZERO_WORD;
-                jump_or_not = False;
+                jump_or_not = `False;
             end
         endcase
     end

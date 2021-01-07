@@ -5,19 +5,21 @@ module ifetch(
     input wire rst,
     input wire rdy,
     input wire pc_reg_rdy,
-    input wire [`AddrLen - 1 : 0] if_pc_i;
+    input wire [`AddrLen - 1 : 0] if_pc_i,
 
-    output reg [`AddrLen - 1 : 0] if_pc_o;
-    output reg [`InstLen - 1 : 0] if_inst_o;
-    output wire if_stall;
+    output reg [`AddrLen - 1 : 0] if_pc_o,
+    output reg [`InstLen - 1 : 0] if_inst_o,
+    output reg if_stall,
 
     output reg [`AddrLen - 1 : 0] if_addr,
     output reg if_request,
     input wire [`InstLen - 1 : 0] if_inst_i,
     input wire if_enable
-)
+);
 
 reg [39:0] cache[`CacheSize - 1 : 0];
+reg valid[`CacheSize - 1 : 0];
+integer i;
 always @ (*) begin
     if(rst) begin
         if_pc_o = `ZERO_WORD;
@@ -25,6 +27,7 @@ always @ (*) begin
         if_stall = `False;
         if_addr = `ZERO_WORD;
         if_request = `False;
+        for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
     end
     else if (rdy && pc_reg_rdy) begin
         if (if_request) begin
@@ -34,13 +37,14 @@ always @ (*) begin
                 if_addr = if_pc_i;
                 if_request = `False;
                 cache[if_pc_i[9:2]][31:0] = if_inst_i;
+                valid[if_pc_i[9:2]] = `True;
             end
             else begin
                 if_stall = `True;
             end
         end
-        else if (cache[if_pc_i[9:2]][39:32] == if_pc_i[17:10]) begin
-            if_inst_o = cache[31:0];
+        else if (valid[if_pc_i[9:2]] && cache[if_pc_i[9:2]][39:32] == if_pc_i[17:10]) begin
+            if_inst_o = cache[if_pc_i[9:2]][31:0];
         end
         else begin
             if_addr = if_pc_i;

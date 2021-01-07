@@ -15,22 +15,22 @@ module id(
     input wire [`RegAddrLen - 1 : 0] rd_addr_ex,
     input wire [`OpLen - 1 : 0] op_ex,
     //MEM Forwarding
-    input wire load_or_not;
+    input wire load_or_not,
     input wire [`RegLen - 1 : 0] rd_data_mem,
     input wire [`RegAddrLen - 1 : 0] rd_addr_mem,
     //To Register
     output reg [`RegAddrLen - 1 : 0] reg1_addr_o,
-    output wire reg1_read_enable,
+    output reg reg1_read_enable,
     output reg [`RegAddrLen - 1 : 0] reg2_addr_o,
-    output wire reg2_read_enable,
+    output reg reg2_read_enable,
     //To next stage
     output reg [`AddrLen - 1 : 0] pc_o,
     output reg [`RegLen - 1 : 0] reg1,
     output reg [`RegLen - 1 : 0] reg2,
-    output reg [`RegLen - 1 : 0] Imm,
+    output reg [`RegLen - 1 : 0] imm,
     output reg [`RegAddrLen - 1 : 0] rd,
-    output reg [`OpCodeLen - 1 : 0] op,
-    output wire id_stall
+    output reg [`OpLen - 1 : 0] op,
+    output reg id_stall
     );
     
 //Decode: Get opcode, imm, rd, and the addr of rs1&rs2
@@ -53,7 +53,7 @@ always @ (*) begin
         pc_o = `ZERO_WORD;
         reg1 = `ZERO_WORD;
         reg2 = `ZERO_WORD;
-        Imm = `ZERO_WORD;
+        imm = `ZERO_WORD;
         rd = `RegAddrZero; 
         op = `NOP;
         id_stall = `False;
@@ -129,6 +129,7 @@ always @ (*) begin
                         imm = pc + {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
                     end
                 endcase
+            end
             7'b0000011: begin
                 case (inst[14:12])
                     3'b000: begin
@@ -174,19 +175,19 @@ always @ (*) begin
                         op = `SB;
                         reg1_read_enable = `True;
                         reg2_read_enable = `True;
-                        imm = {21{inst[31]}, inst[30:25], inst[11:7]};
+                        imm = {{21{inst[31]}}, inst[30:25], inst[11:7]};
                     end
                     3'b001: begin
                         op = `SH;
                         reg1_read_enable = `True;
                         reg2_read_enable = `True;
-                        imm = {21{inst[31]}, inst[30:25], inst[11:7]};
+                        imm = {{21{inst[31]}}, inst[30:25], inst[11:7]};
                     end
                     3'b010: begin
                         op = `SW;
                         reg1_read_enable = `True;
                         reg2_read_enable = `True;
-                        imm = {21{inst[31]}, inst[30:25], inst[11:7]};
+                        imm = {{21{inst[31]}}, inst[30:25], inst[11:7]};
                     end
                 endcase
             end
@@ -313,12 +314,12 @@ end
 
 always @ (*) begin
     if (rst || !reg1_read_enable) reg1 = `ZERO_WORD;
-    else if (rd_addr_ex == reg1_addr) begin
-        if (ex_op >= `LB) id_stall = `True;
-        else if (ex_op >= `ADDI) reg1 = rd_data_ex;
+    else if (rd_addr_ex == reg1_addr_o) begin
+        if (op_ex >= `LB) id_stall = `True;
+        else if (op_ex >= `ADDI) reg1 = rd_data_ex;
         else reg1 = reg1_data_i;
     end
-    else if (rd_addr_mem == reg1_addr) begin
+    else if (rd_addr_mem == reg1_addr_o) begin
         if (load_or_not) reg1 = rd_data_mem;
         else reg1 = reg1_data_i;
     end
@@ -327,12 +328,12 @@ end
 
 always @ (*) begin
     if (rst || !reg2_read_enable) reg2 = `ZERO_WORD;
-    else if (rd_addr_ex == reg2_addr) begin
-        if (ex_op >= `LB) id_stall = `True;
-        else if (ex_op >= `ADDI) reg2 = rd_data_ex;
+    else if (rd_addr_ex == reg2_addr_o) begin
+        if (op_ex >= `LB) id_stall = `True;
+        else if (op_ex >= `ADDI) reg2 = rd_data_ex;
         else reg2 = reg2_data_i;
     end
-    else if (rd_addr_mem == reg2_addr) begin
+    else if (rd_addr_mem == reg2_addr_o) begin
         if (load_or_not) reg2 = rd_data_mem;
         else reg2 = reg2_data_i;
     end

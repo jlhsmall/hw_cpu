@@ -8,21 +8,21 @@ module mem_ctrl(
     //IF
     input wire [`AddrLen - 1 : 0] if_addr,
     input wire if_request,
-    output wire [`InstLen - 1 : 0] if_inst,
-    output wire if_enable,
+    output reg [`InstLen - 1 : 0] if_inst,
+    output reg if_enable,
     //MEM
     input wire [`AddrLen - 1 : 0] mem_addr,
-    input wire load_or_not;
-    input wire store_or_not;
+    input wire load_or_not,
+    input wire store_or_not,
     input wire [2:0] num_of_bytes,
     input wire [`RegLen - 1 : 0] store_data,
-    output wire [`RegLen - 1 : 0] load_data,
-    output wire mem_enable
+    output reg [`RegLen - 1 : 0] load_data,
+    output reg mem_enable,
     //OUT
-    output wire [7:0] mem_dout,
-    output wire [31:0] mem_a,
-    output wire mem_wr,	
-    input wire [7:0] mem_din)
+    output reg [7:0] mem_dout,
+    output reg [31:0] mem_a,
+    output reg mem_wr,	
+    input wire [7:0] mem_din);
 	
 reg [2:0] cnt;
 reg [2:0] state, next_state;
@@ -68,7 +68,7 @@ always @ (*) begin
             end
         end
         `S_IF: begin
-            if (cnt == b'100) begin
+            if (cnt == 3'b100) begin
                 if_inst = out_data;
                 if_enable = `True;
                 if (load_or_not) begin

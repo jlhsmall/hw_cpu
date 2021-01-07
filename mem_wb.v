@@ -6,7 +6,7 @@ module mem_wb(
     input wire rst,
     input wire rdy,
     input wire mem_wb_stall,
-    output wire mem_wb_rdy,
+    output reg mem_wb_rdy,
     input wire [`RegLen - 1 : 0] mem_rd_data,
     input wire [`RegAddrLen - 1 : 0] mem_rd_addr,
     input wire mem_rd_enable,
