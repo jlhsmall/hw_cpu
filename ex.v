@@ -269,7 +269,10 @@ always @ (*) begin
         endcase
         last_jump_or_not = jump_or_not;
     end
-    else ex_stall = `False;
+    else begin
+        ex_stall = `False;
+        jump_or_not = `False;
+    end
 end
     
 endmodule

@@ -59,6 +59,7 @@ always @ (*) begin
     else if (rdy && if_id_rdy) begin
         pc_o = pc;
         case (inst[6:0])
+            7'b0000000: op = `NOP;
             7'b0110111: begin
                 op = `LUI;
                 rd = inst[11:7];
@@ -310,29 +311,32 @@ end
 
 always @ (*) begin
     id_stall = `False;
-    if (rst || jump_or_not || !reg1_read_enable) reg1 = `ZERO_WORD;
-    else if (rd_addr_ex == reg1_addr_o) begin
-        if (op_ex >= `LB) id_stall = `True;
-        else if (op_ex >= `ADDI) reg1 = rd_data_ex;
+    if (rst || jump_or_not) reg1 = `ZERO_WORD;
+    else if (reg1_read_enable) begin
+        if (rd_addr_ex == reg1_addr_o) begin
+            if (op_ex >= `LB) id_stall = `True;
+            else if (op_ex >= `ADDI) reg1 = rd_data_ex;
+            else reg1 = reg1_data_i;
+        end
+        else if (rd_addr_mem == reg1_addr_o) begin
+            if (load_or_not) reg1 = rd_data_mem;
+            else reg1 = reg1_data_i;
+        end
         else reg1 = reg1_data_i;
     end
-    else if (rd_addr_mem == reg1_addr_o) begin
-        if (load_or_not) reg1 = rd_data_mem;
-        else reg1 = reg1_data_i;
-    end
-    else reg1 = reg1_data_i;
-
-    if (rst || jump_or_not || !reg2_read_enable) reg2 = `ZERO_WORD;
-    else if (rd_addr_ex == reg2_addr_o) begin
-        if (op_ex >= `LB) id_stall = `True;
-        else if (op_ex >= `ADDI) reg2 = rd_data_ex;
+    if (rst || jump_or_not) reg2 = `ZERO_WORD;
+    else if (reg2_read_enable) begin
+        if (rd_addr_ex == reg2_addr_o) begin
+            if (op_ex >= `LB) id_stall = `True;
+            else if (op_ex >= `ADDI) reg2 = rd_data_ex;
+            else reg2 = reg2_data_i;
+        end
+        else if (rd_addr_mem == reg2_addr_o) begin
+            if (load_or_not) reg2 = rd_data_mem;
+            else reg2 = reg2_data_i;
+        end
         else reg2 = reg2_data_i;
     end
-    else if (rd_addr_mem == reg2_addr_o) begin
-        if (load_or_not) reg2 = rd_data_mem;
-        else reg2 = reg2_data_i;
-    end
-    else reg2 = reg2_data_i;
 end
 
 endmodule

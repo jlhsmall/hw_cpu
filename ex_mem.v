@@ -16,11 +16,12 @@ module ex_mem(
     output reg [`RegLen - 1 : 0] mem_rd_data,
     output reg [`RegAddrLen - 1 : 0] mem_rd_addr,
     output reg [`AddrLen - 1 : 0] mem_addr_i,
-    output reg [`OpLen - 1 : 0] mem_op
+    output reg [`OpLen - 1 : 0] mem_op,
+    input wire ex_stall
     );
 
 always @ (posedge clk) begin
-    if (rst == `True) begin
+    if (rst) begin
         ex_mem_rdy <= `False;
         mem_rd_data <= `ZERO_WORD;
         mem_rd_addr <= `RegAddrZero;
@@ -32,7 +33,7 @@ always @ (posedge clk) begin
         mem_rd_data <= ex_rd_data;
         mem_rd_addr <= ex_rd_addr;
         mem_addr_i <= mem_addr_ex;
-        mem_op <= ex_op;
+        mem_op <= ex_stall ? `NOP : ex_op;
     end
     else ex_mem_rdy <= `False;
 end

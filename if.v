@@ -28,7 +28,7 @@ always @ (*) begin
         if_stall = `False;
         if_addr = `ZERO_WORD;
         if_request = `False;
-        for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
+        if (rst) for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
     end
     else if (rdy) begin
         if (if_request) begin

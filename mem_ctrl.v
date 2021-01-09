@@ -24,9 +24,8 @@ module mem_ctrl(
     output reg mem_wr,	
     input wire [7:0] mem_din);
 	
-reg [2:0] cnt,ncnt;
-reg [2:0] state, next_state;
-reg [`RegLen - 1 : 0] out_data;
+reg [1:0] cnt, ncnt;
+reg [1:0] state, next_state;
 
 always @ (*) begin
     if (rst) begin
@@ -45,83 +44,125 @@ always @ (*) begin
         mem_enable = `False;
         case (state)
             `S_LOAD: begin
-                if (cnt == num_of_bytes + 1) begin
-                    load_data = out_data;
+                case (cnt)
+                    2'b00: begin
+                        ncnt = 2'b01;
+                        load_data[7:0] = mem_din;
+                        mem_a = mem_addr + 1;
+                    end
+                    2'b01: begin
+                        ncnt = 2'b10;
+                        load_data[15:8] = mem_din;
+                        mem_a = mem_addr + 2;
+                    end
+                    2'b10: begin
+                        ncnt = 2'b11;
+                        load_data[23:16] = mem_din;
+                        mem_a = mem_addr + 3;
+                    end
+                    2'b11: begin
+                        load_data[31:24] = mem_din;
+                        ncnt = 2'b00;
+                    end
+                endcase
+                if (cnt == num_of_bytes - 1) begin
                     mem_enable = `True;
-                    ncnt = 0;
+                    ncnt = 2'b00;
                     if (if_request) begin
-                        mem_wr = 0;
                         mem_a = if_addr;
                         next_state = `S_IF;
                     end
                     else next_state = `S_FREE;
                 end
                 else begin
-                    mem_wr = 0;
                     ncnt = cnt + 1;
                     mem_a = mem_addr + cnt;
                     next_state = `S_LOAD;
                 end
             end
             `S_STORE: begin
-                if (cnt == num_of_bytes + 1) begin
+                case (cnt)
+                    2'b00: begin
+                        ncnt = 2'b01;
+                        mem_dout = store_data[15:8];
+                        mem_a = mem_addr + 1;
+                    end
+                    2'b01: begin
+                        ncnt = 2'b10;
+                        mem_dout = store_data[23:16];
+                        mem_a = mem_addr + 2;
+                    end
+                    2'b10: begin
+                        ncnt = 2'b11;
+                        mem_dout = store_data[31:24];
+                        mem_a = mem_addr + 3;
+                    end
+                    2'b11: begin
+                        ncnt = 2'b00;
+                    end
+                endcase
+                if (cnt == num_of_bytes - 1) begin
                     mem_enable = `True;
+                    mem_wr = `False;
                     ncnt = 0;
                     if (if_request) begin
-                        mem_wr = 0;
                         mem_a = if_addr;
                         next_state = `S_IF;
                     end
                     else next_state = `S_FREE;
                 end
-                else begin
-                    mem_wr = 1;
-                    mem_a = mem_addr + cnt;
-                    ncnt = cnt + 1;
-                    next_state = `S_STORE;
-                end
             end
             `S_IF: begin
-                if (cnt == 3'b101) begin
-                    if_inst = out_data;
-                    if_enable = `True;
-                    ncnt = 0;
-                    if (load_or_not) begin
-                        mem_wr = 0;
-                        mem_a = mem_addr;
-                        next_state = `S_LOAD;
+                case (cnt)
+                    2'b00: begin
+                        ncnt = 2'b01;
+                        if_inst[7:0] = mem_din;
+                        mem_a = if_addr + 1;
                     end
-                    else if (store_or_not) begin
-                        mem_wr = 1;
-                        mem_a = mem_addr;
-                        next_state = `S_STORE;
+                    2'b01: begin
+                        ncnt = 2'b10;
+                        if_inst[15:8] = mem_din;
+                        mem_a = if_addr + 2;
                     end
-                    else next_state = `S_FREE;
-                end
-                else begin
-                    mem_wr = 0;
-                    mem_a = if_addr + cnt;
-                    ncnt = cnt + 1;
-                    next_state = `S_IF;
-                end
+                    2'b10: begin
+                        ncnt = 2'b11;
+                        if_inst[23:16] = mem_din;
+                        mem_a = if_addr + 3;
+                    end
+                    2'b11: begin
+                        ncnt = 2'b00;
+                        if_inst[31:24] = mem_din;
+                        if_enable = `True;
+                        if (load_or_not) begin
+                            mem_a = mem_addr;
+                            next_state = `S_LOAD;
+                        end
+                        else if (store_or_not) begin
+                            mem_wr = `True;
+                            mem_a = mem_addr;
+                            mem_dout = store_data[7:0];
+                            next_state = `S_STORE;
+                        end
+                        else next_state = `S_FREE;
+                    end
+                endcase
             end
             `S_FREE: begin
                 ncnt = 0;
                 if (load_or_not) begin
-                    mem_wr = 0;
-                    mem_a = mem_addr;
-                    next_state = `S_LOAD;
-                end
+                        mem_a = mem_addr;
+                        next_state = `S_LOAD;
+                    end
                 else if (store_or_not) begin
-                    mem_wr = 1;
-                    mem_a = mem_addr;
-                    next_state = `S_STORE;
-                end
+                        mem_wr = `True;
+                        mem_a = mem_addr;
+                        mem_dout = store_data[7:0];
+                        next_state = `S_STORE;
+                    end
                 else if (if_request) begin
-                    mem_wr = 0;
-                    mem_a = if_addr;
-                    next_state = `S_IF;
-                end
+                        mem_a = if_addr;
+                        next_state = `S_IF;
+                    end
                 else next_state = `S_FREE;
             end
         endcase
@@ -129,37 +170,10 @@ always @ (*) begin
 end
 always @ (posedge clk, posedge rst) begin
     if (rst) begin
-        cnt <= 3'b000;
+        cnt <= 2'b00;
         state <= `S_FREE;
-        out_data <= `ZERO_WORD;
     end
     else if (rdy) begin
-        case (state)
-            `S_LOAD: begin
-                case (cnt)
-                    3'b001: out_data[7:0] <= mem_din;
-                    3'b010: out_data[15:8] <= mem_din;
-                    3'b011: out_data[23:16] <= mem_din;
-                    3'b100: out_data[31:24] <= mem_din;
-                endcase
-            end
-            `S_STORE: begin
-                case (cnt)
-                    3'b000: mem_dout <= store_data[7:0];
-                    3'b001: mem_dout <= store_data[15:8];
-                    3'b010: mem_dout <= store_data[23:16];
-                    3'b011: mem_dout <= store_data[31:24];
-                endcase
-            end
-            `S_IF: begin
-                case (cnt)
-                    3'b001: out_data[7:0] <= mem_din;
-                    3'b010: out_data[15:8] <= mem_din;
-                    3'b011: out_data[23:16] <= mem_din;
-                    3'b100: out_data[31:24] <= mem_din;
-                endcase
-            end
-        endcase
         state <= next_state;
         cnt <= ncnt;
     end

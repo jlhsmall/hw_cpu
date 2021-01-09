@@ -42,9 +42,9 @@
 `define LW 6'b110001
 `define LBU 6'b110010
 `define LHU 6'b110011
-`define SB 6'b010000
-`define SH 6'b010001
-`define SW 6'b010010
+`define SB 6'b110110
+`define SH 6'b110111
+`define SW 6'b111000
 `define ADDI 6'b010011
 `define SLTI 6'b010100
 `define SLTIU 6'b010101

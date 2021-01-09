@@ -32,13 +32,15 @@ end
 
 //read 1
 always @ (*) begin
-    if (!rst && !jump_or_not && read_enable1 == `ReadEnable) begin
-        if (read_addr1 == `RegAddrLen'h0)
-            read_data1 = `ZERO_WORD;
-        else if (read_addr1 == write_addr && write_enable == `WriteEnable)
-            read_data1 = write_data;
-        else
-            read_data1 = regs[read_addr1];
+    if (!rst && !jump_or_not) begin
+        if (read_enable1) begin
+            if (read_addr1 == `RegAddrLen'h0)
+                read_data1 = `ZERO_WORD;
+            else if (read_addr1 == write_addr && write_enable == `WriteEnable)
+                read_data1 = write_data;
+            else
+                read_data1 = regs[read_addr1];
+        end
     end
     else begin
         read_data1 = `ZERO_WORD;
@@ -47,13 +49,15 @@ end
 
 //read 2
 always @ (*) begin
-    if (!rst && !jump_or_not && read_enable2 == `ReadEnable) begin
-        if (read_addr2 == `RegAddrLen'h0)
-            read_data2 = `ZERO_WORD;
-        else if (read_addr2 == write_addr && write_enable == `WriteEnable)
-            read_data2 = write_data;
-        else
-            read_data2 = regs[read_addr2];
+    if (!rst && !jump_or_not) begin
+        if (read_enable2) begin
+            if (read_addr2 == `RegAddrLen'h0)
+                read_data2 = `ZERO_WORD;
+            else if (read_addr2 == write_addr && write_enable == `WriteEnable)
+                read_data2 = write_data;
+            else
+                read_data2 = regs[read_addr2];
+        end
     end
     else begin
         read_data2 = `ZERO_WORD;
