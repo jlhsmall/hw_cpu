@@ -28,14 +28,17 @@ always @ (posedge clk) begin
         mem_addr_i <= `ZERO_WORD;
         mem_op <= `NOP;
     end
-    else if (rdy && !ex_mem_stall) begin
-        ex_mem_rdy = `True;
-        mem_rd_data <= ex_rd_data;
-        mem_rd_addr <= ex_rd_addr;
-        mem_addr_i <= mem_addr_ex;
-        mem_op <= ex_stall ? `NOP : ex_op;
+    else if (rdy) begin
+        if (!ex_mem_stall) begin
+            ex_mem_rdy <= `True;
+            mem_rd_data <= ex_rd_data;
+            mem_rd_addr <= ex_rd_addr;
+            mem_addr_i <= mem_addr_ex;
+            mem_op <= ex_stall ? `NOP : ex_op;
+        end
+        else
+            ex_mem_rdy <= `False;
     end
-    else ex_mem_rdy <= `False;
 end
 
 endmodule

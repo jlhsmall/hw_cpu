@@ -46,7 +46,7 @@ always @ (*) begin
     end
 end
 always @ (*) begin
-    if(rst || jump_or_not) begin
+    if(rst || rdy && jump_or_not) begin
         reg1_read_enable = `False;
         reg2_read_enable = `False;
         pc_o = `ZERO_WORD;

@@ -22,7 +22,7 @@ reg [39:0] cache[`CacheSize - 1 : 0];
 reg valid[`CacheSize - 1 : 0];
 integer i;
 always @ (*) begin
-    if(rst || jump_or_not) begin
+    if(rst || rdy && jump_or_not) begin
         if_pc_o = `ZERO_WORD;
         if_inst_o = `ZERO_WORD;
         if_stall = `False;

@@ -155,7 +155,7 @@ mem_ctrl mem_ctrl0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
                   .if_addr(if_addr), .if_request(if_request), .if_inst(if_inst_i), .if_enable(if_enable),
                   .mem_addr(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),
                   .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable),
-                  .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din));
+                  .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din), .jump_or_not(jump_or_not));
 
 stall stall0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
             .if_stall(if_stall), .id_stall(id_stall), .ex_stall(ex_stall), .mem_stall(mem_stall),

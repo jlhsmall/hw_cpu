@@ -16,16 +16,18 @@ module if_id(
     );
     
 always @ (posedge clk) begin
-    if (rst || jump_or_not) begin
+    if (rst || rdy && jump_or_not) begin
         if_id_rdy <= `False;
         id_inst <= `ZERO_WORD;
         id_pc <= `ZERO_WORD;
     end
-    else if (rdy && !if_id_stall) begin
-        if_id_rdy <= `True;
-        id_pc <= if_pc;
-        id_inst <= if_stall ? `ZERO_WORD : if_inst;
+    else if (rdy) begin
+        if (!if_id_stall) begin
+            if_id_rdy <= `True;
+            id_pc <= if_pc;
+            id_inst <= if_stall ? `ZERO_WORD : if_inst;
+        end
+        else if_id_rdy <= `False;
     end
-    else if_id_rdy <= `False;
 end
 endmodule

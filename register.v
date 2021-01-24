@@ -23,10 +23,14 @@ module register(
     reg[`RegLen - 1 : 0] regs[`RegNum - 1 : 0];
     
 //write 1
-always @ (posedge clk) begin
-    if (!rst && write_enable == `WriteEnable) begin
+integer i;
+always @ (*) begin
+    if (rst) begin
+        for (i = 0; i < `RegNum; i = i + 1) regs[i] = `ZERO_WORD;
+    end
+    else if (write_enable) begin
         if (write_addr != `RegAddrZero) //not zero register
-            regs[write_addr] <= write_data;
+            regs[write_addr] = write_data;
     end
 end
 

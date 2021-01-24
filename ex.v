@@ -22,7 +22,7 @@ module ex(
     );
 reg last_jump_or_not;
 always @ (*) begin
-    if (rst || last_jump_or_not) begin
+    if (rst || rdy && last_jump_or_not) begin
         rd_data_o = `ZERO_WORD;
         rd_addr = `RegAddrZero;
         op_o = `NOP;
@@ -50,7 +50,7 @@ always @ (*) begin
             `JAL: begin
                 rd_data_o = pc + 4;
                 rd_addr = rd;
-                npc = reg1 + imm;
+                npc = pc + imm;
                 jump_or_not = `True;
             end
             `JALR: begin

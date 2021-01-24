@@ -37,6 +37,7 @@ always @ (*) begin
         store_data = `ZERO_WORD;
     end
     else if (rdy) begin
+        rd_enable_o = `False;
         if (load_or_not || store_or_not) begin
             if (mem_enable) begin
                 mem_stall = `False;
@@ -66,10 +67,7 @@ always @ (*) begin
                         rd_enable_o = `True;
                         load_or_not = `False;
                     end
-                    default: begin
-                        rd_enable_o = `False;
-                        store_or_not = `False;
-                    end
+                    default: store_or_not = `False;
                 endcase
             end
             else begin
@@ -110,19 +108,16 @@ always @ (*) begin
                         num_of_bytes = 3'b001;
                         store_data = {24'h000000, rd_data_i[7:0]};
                         store_or_not = `True;
-                        rd_enable_o = `False;
                     end
                     `SH: begin
                         num_of_bytes = 3'b010;
                         store_data = {16'h0000, rd_data_i[15:0]};
                         store_or_not = `True;
-                        rd_enable_o = `False;
                     end
                     `SW: begin
                         num_of_bytes = 3'b100;
                         store_data = rd_data_i;
                         store_or_not = `True;
-                        rd_enable_o = `False;
                     end
                 endcase
             end
@@ -131,8 +126,6 @@ always @ (*) begin
                 rd_data_o = rd_data_i;
                 rd_addr_o = rd_addr_i;
                 rd_enable_o = `True;
-                load_or_not = `False;
-                store_or_not = `False;
             end
         end
         else mem_stall = `False;

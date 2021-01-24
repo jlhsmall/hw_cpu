@@ -20,17 +20,19 @@ always @ (posedge clk) begin
         pc_o <= `ZERO_WORD;
         pc_reg_rdy <= `False;
     end
-    else if (jump_or_not) begin
-        pc <= npc;
-        pc_o <= `ZERO_WORD;
-        pc_reg_rdy <= `False;
+    else if (rdy) begin
+        if (jump_or_not) begin
+            pc <= npc;
+            pc_o <= `ZERO_WORD;
+            pc_reg_rdy <= `False;
+        end
+        else if (rdy && !pc_reg_stall) begin
+            pc_o <= pc;
+            pc_reg_rdy <= `True;
+            pc <= pc + 4;
+        end
+        else pc_reg_rdy <= `False;
     end
-    else if (rdy && !pc_reg_stall) begin
-        pc_o <= pc;
-        pc_reg_rdy <= `True;
-        pc <= pc + 4;
-    end
-    else pc_reg_rdy <= `False;
 end
 /*always @ (posedge clk) begin
     if (rst == `ResetEnable)
