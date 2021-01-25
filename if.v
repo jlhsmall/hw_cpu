@@ -37,7 +37,7 @@ always @ (*) begin
                 if_pc_o = if_pc_i;
                 if_request = `False;
                 if_stall = `False;
-                cache[if_pc_i[9:2]][31:0] = if_inst_i;
+                cache[if_pc_i[9:2]] = {if_pc_i[17:10], if_inst_i};
                 valid[if_pc_i[9:2]] = `True;
             end
             else begin

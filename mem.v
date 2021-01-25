@@ -44,26 +44,31 @@ always @ (*) begin
                 case (op)
                     `LB: begin
                         rd_data_o = {{24{load_data[7]}}, load_data[7:0]};
+                        rd_addr_o = rd_addr_i;
                         rd_enable_o = `True;
                         load_or_not = `False;
                     end
                     `LH: begin
                         rd_data_o = {{16{load_data[7]}}, load_data[15:0]};
+                        rd_addr_o = rd_addr_i;
                         rd_enable_o = `True;
                         load_or_not = `False;
                     end
                     `LW: begin
                         rd_data_o = load_data;
+                        rd_addr_o = rd_addr_i;
                         rd_enable_o = `True;
                         load_or_not = `False;
                     end
                     `LBU: begin
                         rd_data_o = {24'h000000, load_data[7:0]};
+                        rd_addr_o = rd_addr_i;
                         rd_enable_o = `True;
                         load_or_not = `False;
                     end
                     `LHU: begin
                         rd_data_o = {16'h0000, load_data[15:0]};
+                        rd_addr_o = rd_addr_i;
                         rd_enable_o = `True;
                         load_or_not = `False;
                     end
@@ -82,27 +87,22 @@ always @ (*) begin
                     `LB: begin
                         num_of_bytes = 3'b001;
                         load_or_not = `True;
-                        rd_enable_o = `True;
                     end
                     `LH: begin
                         num_of_bytes = 3'b010;
                         load_or_not = `True;
-                        rd_enable_o = `True;
                     end
                     `LW: begin
                         num_of_bytes = 3'b100;
                         load_or_not = `True;
-                        rd_enable_o = `True;
                     end
                     `LBU: begin
                         num_of_bytes = 3'b001;
                         load_or_not = `True;
-                        rd_enable_o = `True;
                     end
                     `LHU: begin
                         num_of_bytes = 3'b010;
                         load_or_not = `True;
-                        rd_enable_o = `True;
                     end
                     `SB: begin
                         num_of_bytes = 3'b001;
