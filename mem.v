@@ -25,7 +25,7 @@ module mem(
     );
 
 always @ (*) begin
-    if (rst == `True) begin
+    if (rst) begin
         rd_data_o = `ZERO_WORD;
         rd_addr_o = `RegAddrZero;
         rd_enable_o = `False;

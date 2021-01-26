@@ -22,7 +22,7 @@ reg [39:0] cache[`CacheSize - 1 : 0];
 reg valid[`CacheSize - 1 : 0];
 integer i;
 always @ (*) begin
-    if(rst || rdy && jump_or_not) begin
+    if (rst) begin
         if_pc_o = `ZERO_WORD;
         if_inst_o = `ZERO_WORD;
         if_stall = `False;
@@ -31,7 +31,14 @@ always @ (*) begin
         if (rst) for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
     end
     else if (rdy) begin
-        if (if_request) begin
+        if (jump_or_not) begin
+            if_pc_o = `ZERO_WORD;
+            if_inst_o = `ZERO_WORD;
+            if_stall = `False;
+            if_addr = `ZERO_WORD;
+            if_request = `False;
+        end
+        else if (if_request) begin
             if(if_enable) begin
                 if_inst_o = if_inst_i;
                 if_pc_o = if_pc_i;
@@ -65,9 +72,6 @@ always @ (*) begin
                 default: if_stall = `False;
             endcase
         end*/
-    end
-    else begin
-        if_stall = `False;
     end
 end
 endmodule

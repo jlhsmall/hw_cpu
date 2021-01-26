@@ -77,11 +77,7 @@ always @ (*) begin
                     end
                     else next_state = `S_FREE;
                 end
-                else begin
-                    ncnt = cnt + 1;
-                    mem_a = mem_addr + cnt;
-                    next_state = `S_LOAD;
-                end
+                else  next_state = `S_LOAD;
             end
             `S_STORE: begin
                 if (cnt == num_of_bytes - 1) begin
@@ -170,19 +166,19 @@ always @ (*) begin
             `S_FREE: begin
                 ncnt = 0;
                 if (load_or_not) begin
-                        mem_a = mem_addr;
-                        next_state = `S_LOAD;
-                    end
+                    mem_a = mem_addr;
+                    next_state = `S_LOAD;
+                end
                 else if (store_or_not) begin
-                        mem_wr = `True;
-                        mem_a = mem_addr;
-                        mem_dout = store_data[7:0];
-                        next_state = `S_STORE;
-                    end
+                    mem_wr = `True;
+                    mem_a = mem_addr;
+                    mem_dout = store_data[7:0];
+                    next_state = `S_STORE;
+                end
                 else if (if_request) begin
-                        mem_a = if_addr;
-                        next_state = `S_IF;
-                    end
+                    mem_a = if_addr;
+                    next_state = `S_IF;
+                end
                 else next_state = `S_FREE;
             end
         endcase

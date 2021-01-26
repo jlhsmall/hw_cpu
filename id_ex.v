@@ -26,7 +26,7 @@ module id_ex(
     );
 
 always @ (posedge clk) begin
-    if (rst || rdy && jump_or_not) begin
+    if (rst) begin
         id_ex_rdy <= `False;
         ex_pc <= `ZERO_WORD;
         ex_reg1 <= `ZERO_WORD;
@@ -36,6 +36,15 @@ always @ (posedge clk) begin
         ex_op <= `NOP;
     end
     else if (rdy) begin
+        if (jump_or_not) begin
+            id_ex_rdy <= `False;
+            ex_pc <= `ZERO_WORD;
+            ex_reg1 <= `ZERO_WORD;
+            ex_reg2 <= `ZERO_WORD;
+            ex_imm <= `ZERO_WORD;
+            ex_rd <= `ZERO_WORD;
+            ex_op <= `NOP;
+        end
         if(!id_ex_stall) begin
             id_ex_rdy <= `True;
             ex_pc <= id_pc;

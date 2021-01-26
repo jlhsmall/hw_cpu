@@ -119,7 +119,7 @@ if_id if_id0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .if_id_stall(if_id_stall)
 id id0(.rst(rst_in), .rdy(rdy_in), .if_id_rdy(if_id_rdy), 
       .pc(id_pc), .inst(id_inst), .reg1_data_i(reg1_data), .reg2_data_i(reg2_data), 
       .rd_data_ex(ex_rd_data), .rd_addr_ex(ex_rd_addr), .op_ex(ex_op_o), 
-      .load_or_not(load_or_not), .rd_data_mem(mem_rd_data_o), .rd_addr_mem(mem_rd_addr_o), 
+      .rd_enable_mem(mem_rd_enable_o), .rd_data_mem(mem_rd_data_o), .rd_addr_mem(mem_rd_addr_o), 
       .reg1_addr_o(reg1_addr), .reg1_read_enable(reg1_read_enable), .reg2_addr_o(reg2_addr), .reg2_read_enable(reg2_read_enable),
       .pc_o(id_pc_o), .reg1(id_reg1), .reg2(id_reg2), .imm(id_imm), .rd(id_rd), .op(id_op), .id_stall(id_stall), .jump_or_not(jump_or_not));
       
