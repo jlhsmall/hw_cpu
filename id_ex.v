@@ -47,12 +47,22 @@ always @ (posedge clk) begin
         end
         if(!id_ex_stall) begin
             id_ex_rdy <= `True;
-            ex_pc <= id_pc;
-            ex_reg1 <= id_reg1;
-            ex_reg2 <= id_reg2;
-            ex_imm <= id_imm;
-            ex_rd <= id_rd;
-            ex_op <= id_stall ? `NOP : id_op;
+            if (id_stall) begin
+                ex_pc <= `ZERO_WORD;
+                ex_reg1 <= `ZERO_WORD;
+                ex_reg2 <= `ZERO_WORD;
+                ex_imm <= `ZERO_WORD;
+                ex_rd <= `RegAddrZero;
+                ex_op <= `NOP;
+            end
+            else begin
+                ex_pc <= id_pc;
+                ex_reg1 <= id_reg1;
+                ex_reg2 <= id_reg2;
+                ex_imm <= id_imm;
+                ex_rd <= id_rd;
+                ex_op <= id_op;
+            end
         end
         else id_ex_rdy <= `False;
     end

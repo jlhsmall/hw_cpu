@@ -321,22 +321,28 @@ always @ (*) begin
     id_stall = `False;
     if (rst || jump_or_not) reg1 = `ZERO_WORD;
     else if (reg1_read_enable) begin
-        if (rd_addr_ex == reg1_addr_o) begin
+        if (rd_addr_ex != `RegAddrZero && rd_addr_ex == reg1_addr_o) begin
             if (op_ex >= `LB) id_stall = `True;
             else if (op_ex >= `ADDI) reg1 = rd_data_ex;
             else reg1 = reg1_data_i;
         end
-        else if (rd_enable_mem && rd_addr_mem == reg1_addr_o) reg1 = rd_data_mem;
+        else if (rd_addr_mem != `RegAddrZero && rd_addr_mem == reg1_addr_o) begin 
+            if (rd_enable_mem) reg1 = rd_data_mem;
+            else id_stall = `True;
+        end
         else reg1 = reg1_data_i;
     end
     if (rst || jump_or_not) reg2 = `ZERO_WORD;
     else if (reg2_read_enable) begin
-        if (rd_addr_ex == reg2_addr_o) begin
+        if (rd_addr_ex != `RegAddrZero && rd_addr_ex == reg2_addr_o) begin
             if (op_ex >= `LB) id_stall = `True;
             else if (op_ex >= `ADDI) reg2 = rd_data_ex;
             else reg2 = reg2_data_i;
         end
-        else if (rd_enable_mem && rd_addr_mem == reg2_addr_o) reg2 = rd_data_mem;
+        else if (rd_addr_mem != `RegAddrZero && rd_addr_mem == reg2_addr_o) begin
+            if (rd_enable_mem) reg2 = rd_data_mem;
+            else id_stall = `True;
+        end
         else reg2 = reg2_data_i;
     end
 end

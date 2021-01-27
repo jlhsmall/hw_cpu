@@ -38,6 +38,7 @@ always @ (*) begin
     end
     else if (rdy) begin
         rd_enable_o = `False;
+        rd_addr_o = `RegAddrZero;
         if (load_or_not || store_or_not) begin
             if (mem_enable) begin
                 mem_stall = `False;
