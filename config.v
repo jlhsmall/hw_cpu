@@ -78,4 +78,4 @@
 `define S_STORE 2'b11
 
 //CACHE
-`define CacheSize 256
+`define CacheSize 128
