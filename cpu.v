@@ -64,7 +64,7 @@ wire [`RegAddrLen - 1 : 0] id_rd;
 wire [`AddrLen - 1 : 0] ex_pc;
 wire [`OpLen - 1 : 0] ex_op;
 wire [`RegLen - 1 : 0] ex_reg1, ex_reg2, ex_imm;
-wire[`RegLen - 1 : 0] ex_rd;
+wire[`RegAddrLen - 1 : 0] ex_rd;
 wire [`AddrLen - 1 : 0] npc;
 //EX -> EX/MEM
 wire jump_or_not;
@@ -101,22 +101,21 @@ wire [`RegLen - 1 : 0] write_data;
 
 //STALL
 wire pc_reg_stall, if_id_stall, id_ex_stall, ex_mem_stall;
-wire pc_reg_rdy, if_id_rdy, id_ex_rdy, ex_mem_rdy, mem_wb_rdy;
 wire if_stall, id_stall, ex_stall, mem_stall;
 
 
 //Instantiation
-pc_reg pc_reg0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .pc_reg_stall(pc_reg_stall), .pc_reg_rdy(pc_reg_rdy), 
+pc_reg pc_reg0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .pc_reg_stall(pc_reg_stall),
               .jump_or_not(jump_or_not), .npc(npc), .pc_o(pc)/*, .chip_enable(rom_ce_o)*/);
 
-ifetch if0(.rst(rst_in), .rdy(rdy_in), .pc_reg_rdy(pc_reg_rdy), 
+ifetch if0(.clk(clk_in), .rst(rst_in),
           .if_pc_i(pc), .if_pc_o(if_pc), .if_inst_o(if_inst_o),.if_stall(if_stall),
           .if_addr(if_addr), .if_request(if_request), .if_inst_i(if_inst_i), .if_enable(if_enable), .jump_or_not(jump_or_not));
 
-if_id if_id0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .if_id_stall(if_id_stall), .if_id_rdy(if_id_rdy),  
+if_id if_id0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .if_id_stall(if_id_stall),
             .if_pc(if_pc), .if_inst(if_inst_o), .id_pc(id_pc), .id_inst(id_inst), .jump_or_not(jump_or_not), .if_stall(if_stall));
 
-id id0(.rst(rst_in), .rdy(rdy_in), .if_id_rdy(if_id_rdy), 
+id id0(.rst(rst_in), 
       .pc(id_pc), .inst(id_inst), .reg1_data_i(reg1_data), .reg2_data_i(reg2_data), 
       .rd_data_ex(ex_rd_data), .rd_addr_ex(ex_rd_addr), .op_ex(ex_op_o), 
       .rd_enable_mem(mem_rd_enable_o), .rd_data_mem(mem_rd_data_o), .rd_addr_mem(mem_rd_addr_o), 
@@ -128,26 +127,26 @@ register register0(.clk(clk_in), .rst(rst_in),
                   .read_enable1(reg1_read_enable), .read_addr1(reg1_addr), .read_data1(reg1_data),
                   .read_enable2(reg2_read_enable), .read_addr2(reg2_addr), .read_data2(reg2_data), .jump_or_not(jump_or_not));
 
-id_ex id_ex0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .id_ex_stall(id_ex_stall), .id_ex_rdy(id_ex_rdy), 
+id_ex id_ex0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .id_ex_stall(id_ex_stall), 
             .id_pc(id_pc_o), .id_reg1(id_reg1), .id_reg2(id_reg2), .id_imm(id_imm), .id_rd(id_rd), .id_op(id_op),
             .ex_pc(ex_pc), .ex_reg1(ex_reg1), .ex_reg2(ex_reg2), .ex_imm(ex_imm), .ex_rd(ex_rd), .ex_op(ex_op), .jump_or_not(jump_or_not), .id_stall(id_stall));
 
-ex ex0(.rst(rst_in), .rdy(rdy_in), .id_ex_rdy(id_ex_rdy), 
+ex ex0(.rst(rst_in), 
       .pc(ex_pc), .reg1(ex_reg1), .reg2(ex_reg2), .imm(ex_imm), .rd(ex_rd), .op(ex_op),
       .rd_data_o(ex_rd_data), .rd_addr(ex_rd_addr), .mem_addr(mem_addr_ex), .op_o(ex_op_o), 
       .npc(npc), .jump_or_not(jump_or_not), .ex_stall(ex_stall));
       
-ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .ex_mem_stall(ex_mem_stall), .ex_mem_rdy(ex_mem_rdy), 
+ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .ex_mem_stall(ex_mem_stall), 
               .ex_rd_data(ex_rd_data), .ex_rd_addr(ex_rd_addr), .mem_addr_ex(mem_addr_ex), .ex_op(ex_op_o),
               .mem_rd_data(mem_rd_data_i), .mem_rd_addr(mem_rd_addr_i), .mem_addr_i(mem_addr_i), .mem_op(mem_op), .ex_stall(ex_stall));
               
-mem mem0(.rst(rst_in), .rdy(rdy_in), .ex_mem_rdy(ex_mem_rdy), 
+mem mem0(.clk(clk_in), .rst(rst_in), 
         .rd_data_i(mem_rd_data_i), .rd_addr_i(mem_rd_addr_i), .mem_addr_i(mem_addr_i), .op(mem_op),
         .rd_data_o(mem_rd_data_o), .rd_addr_o(mem_rd_addr_o), .rd_enable_o(mem_rd_enable_o), .mem_stall(mem_stall),
         .mem_addr_o(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),
         .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable));
         
-mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .mem_wb_rdy(mem_wb_rdy), 
+mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
               .mem_rd_data(mem_rd_data_o), .mem_rd_addr(mem_rd_addr_o), .mem_rd_enable(mem_rd_enable_o),
               .wb_rd_data(write_data), .wb_rd_addr(write_addr), .wb_rd_enable(write_enable), .mem_stall(mem_stall));
 
@@ -157,23 +156,8 @@ mem_ctrl mem_ctrl0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
                   .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable),
                   .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din), .jump_or_not(jump_or_not));
 
-stall stall0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
+stall stall0(.rst(rst_in),
             .if_stall(if_stall), .id_stall(id_stall), .ex_stall(ex_stall), .mem_stall(mem_stall),
             .pc_reg_stall(pc_reg_stall), .if_id_stall(if_id_stall), .id_ex_stall(id_ex_stall), .ex_mem_stall(ex_mem_stall));
-/*always @(posedge clk_in)
-  begin
-    if (rst_in)
-      begin
-      
-      end
-    else if (!rdy_in)
-      begin
-      
-      end
-    else
-      begin
-      
-      end
-  end
-*/
+assign  dbgreg_dout = `ZERO_WORD;
 endmodule

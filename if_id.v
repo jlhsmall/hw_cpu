@@ -6,7 +6,6 @@ module if_id(
     input wire rst,
     input wire rdy,
     input wire if_id_stall,
-    output reg if_id_rdy,
     input wire [`AddrLen - 1 : 0] if_pc,
     input wire [`InstLen - 1 : 0] if_inst,
     output reg [`AddrLen - 1 : 0] id_pc,
@@ -16,18 +15,19 @@ module if_id(
     );
     
 always @ (posedge clk) begin
-    if (rst || rdy && jump_or_not) begin
-        if_id_rdy <= `False;
+    if (rst) begin
         id_inst <= `ZERO_WORD;
         id_pc <= `ZERO_WORD;
     end
     else if (rdy) begin
+        if (jump_or_not) begin
+            id_inst <= `ZERO_WORD;
+            id_pc <= `ZERO_WORD;
+        end
         if (!if_id_stall) begin
-            if_id_rdy <= `True;
             id_pc <= if_pc;
             id_inst <= if_stall ? `ZERO_WORD : if_inst;
         end
-        else if_id_rdy <= `False;
     end
 end
 endmodule

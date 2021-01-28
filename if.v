@@ -2,9 +2,8 @@
 `include "config.v"
 
 module ifetch(
+    input wire clk,
     input wire rst,
-    input wire rdy,
-    input wire pc_reg_rdy,
     input wire [`AddrLen - 1 : 0] if_pc_i,
 
     output reg [`AddrLen - 1 : 0] if_pc_o,
@@ -20,58 +19,54 @@ module ifetch(
 
 reg [39:0] cache[`CacheSize - 1 : 0];
 reg valid[`CacheSize - 1 : 0];
+reg nxt_if_request;
 integer i;
-always @ (*) begin
-    if (rst) begin
-        if_pc_o = `ZERO_WORD;
-        if_inst_o = `ZERO_WORD;
-        if_stall = `False;
-        if_addr = `ZERO_WORD;
-        if_request = `False;
-        if (rst) for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
+always @ (posedge clk) begin
+    if(rst) begin
+        for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
+        if_request <= `False;
     end
-    else if (rdy) begin
-        if (jump_or_not) begin
-            if_pc_o = `ZERO_WORD;
-            if_inst_o = `ZERO_WORD;
-            if_stall = `False;
-            if_addr = `ZERO_WORD;
-            if_request = `False;
+    else if(jump_or_not) begin
+        if_request <= `False;
+    end
+    else begin
+        if (if_enable) begin
+            cache[if_pc_i[9:2]] <= {if_pc_i[17:10], if_inst_i};
+            valid[if_pc_i[9:2]] <= `True;
         end
-        else if (if_request) begin
+        if_request <= nxt_if_request;
+    end
+    
+end
+
+always @ (*) begin
+    if_pc_o = `ZERO_WORD;
+    if_inst_o = `ZERO_WORD;
+    if_stall = `False;
+    if_addr = `ZERO_WORD;
+    nxt_if_request = `False;
+    if(!rst && !jump_or_not) begin
+        if (if_request) begin
             if(if_enable) begin
                 if_inst_o = if_inst_i;
                 if_pc_o = if_pc_i;
-                if_request = `False;
-                if_stall = `False;
-                cache[if_pc_i[9:2]] = {if_pc_i[17:10], if_inst_i};
-                valid[if_pc_i[9:2]] = `True;
             end
             else begin
                 if_stall = `True;
+                nxt_if_request = `True;
             end
         end
-        else if(pc_reg_rdy) begin
+        else begin
             if (valid[if_pc_i[9:2]] && cache[if_pc_i[9:2]][39:32] == if_pc_i[17:10]) begin
                 if_inst_o = cache[if_pc_i[9:2]][31:0];
                 if_pc_o = if_pc_i;
-                if_request = `False;
-                if_stall = `False;
             end
             else begin
                 if_addr = if_pc_i;
-                if_request = `True;
+                nxt_if_request = `True;
                 if_stall = `True;
             end
-        end/*
-        if (!if_request) begin
-            case (if_inst_i[6:0])
-                7'b1101111: if_stall = `True;
-                7'b1100111: if_stall = `True;
-                7'b1100011: if_stall = `True;
-                default: if_stall = `False;
-            endcase
-        end*/
+        end
     end
 end
 endmodule

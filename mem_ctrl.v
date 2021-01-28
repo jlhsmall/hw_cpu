@@ -42,7 +42,7 @@ always @ (*) begin
         mem_enable = `False;
         load_data = `ZERO_WORD;
     end
-    else if (rdy) begin
+    else begin
         if_enable = `False;
         mem_enable = `False;
         case (state)

@@ -6,7 +6,6 @@ module pc_reg(
     input wire rst,
     input wire rdy,
     input wire pc_reg_stall,
-    output reg pc_reg_rdy,
 
     input wire jump_or_not,
     input wire [`AddrLen - 1 : 0] npc,
@@ -18,20 +17,16 @@ always @ (posedge clk) begin
     if (rst) begin
         pc <= `ZERO_WORD;
         pc_o <= `ZERO_WORD;
-        pc_reg_rdy <= `False;
     end
     else if (rdy) begin
         if (jump_or_not) begin
-            pc <= npc;
-            pc_o <= `ZERO_WORD;
-            pc_reg_rdy <= `False;
+            pc <= npc + 4;
+            pc_o <= npc;
         end
-        else if (rdy && !pc_reg_stall) begin
+        else if (!pc_reg_stall) begin
             pc_o <= pc;
-            pc_reg_rdy <= `True;
             pc <= pc + 4;
         end
-        else pc_reg_rdy <= `False;
     end
 end
 /*always @ (posedge clk) begin
