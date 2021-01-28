@@ -19,21 +19,14 @@ module ex(
     output reg ex_stall
     );
 always @ (*) begin
-    if (rst) begin
-        rd_data_o = `ZERO_WORD;
-        rd_addr = `RegAddrZero;
-        op_o = `NOP;
-        npc = `ZERO_WORD;
-        jump_or_not = `False;
-        ex_stall = `False;
-    end
-    else begin
-        rd_data_o = `ZERO_WORD;
-        rd_addr = `RegAddrZero;
-        op_o = op;
-        npc = `ZERO_WORD;
-        jump_or_not = `False;
-        ex_stall = `False;
+    rd_data_o = `ZERO_WORD;
+    rd_addr = `RegAddrZero;
+    mem_addr = `ZERO_WORD;
+    op_o = `NOP;
+    npc = `ZERO_WORD;
+    jump_or_not = `False;
+    ex_stall = `False;
+    if (!rst) begin
         case (op)
             `LUI: begin
                 rd_data_o = imm;

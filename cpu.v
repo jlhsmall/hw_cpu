@@ -108,7 +108,7 @@ wire if_stall, id_stall, ex_stall, mem_stall;
 pc_reg pc_reg0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .pc_reg_stall(pc_reg_stall),
               .jump_or_not(jump_or_not), .npc(npc), .pc_o(pc)/*, .chip_enable(rom_ce_o)*/);
 
-ifetch if0(.clk(clk_in), .rst(rst_in),
+ifetch if0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
           .if_pc_i(pc), .if_pc_o(if_pc), .if_inst_o(if_inst_o),.if_stall(if_stall),
           .if_addr(if_addr), .if_request(if_request), .if_inst_i(if_inst_i), .if_enable(if_enable), .jump_or_not(jump_or_not));
 
@@ -122,7 +122,7 @@ id id0(.rst(rst_in),
       .reg1_addr_o(reg1_addr), .reg1_read_enable(reg1_read_enable), .reg2_addr_o(reg2_addr), .reg2_read_enable(reg2_read_enable),
       .pc_o(id_pc_o), .reg1(id_reg1), .reg2(id_reg2), .imm(id_imm), .rd(id_rd), .op(id_op), .id_stall(id_stall), .jump_or_not(jump_or_not));
       
-register register0(.clk(clk_in), .rst(rst_in), 
+register register0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
                   .write_enable(write_enable), .write_addr(write_addr), .write_data(write_data),
                   .read_enable1(reg1_read_enable), .read_addr1(reg1_addr), .read_data1(reg1_data),
                   .read_enable2(reg2_read_enable), .read_addr2(reg2_addr), .read_data2(reg2_data), .jump_or_not(jump_or_not));
@@ -140,7 +140,7 @@ ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .ex_mem_stall(ex_mem_st
               .ex_rd_data(ex_rd_data), .ex_rd_addr(ex_rd_addr), .mem_addr_ex(mem_addr_ex), .ex_op(ex_op_o),
               .mem_rd_data(mem_rd_data_i), .mem_rd_addr(mem_rd_addr_i), .mem_addr_i(mem_addr_i), .mem_op(mem_op), .ex_stall(ex_stall));
               
-mem mem0(.clk(clk_in), .rst(rst_in), 
+mem mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), 
         .rd_data_i(mem_rd_data_i), .rd_addr_i(mem_rd_addr_i), .mem_addr_i(mem_addr_i), .op(mem_op),
         .rd_data_o(mem_rd_data_o), .rd_addr_o(mem_rd_addr_o), .rd_enable_o(mem_rd_enable_o), .mem_stall(mem_stall),
         .mem_addr_o(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),

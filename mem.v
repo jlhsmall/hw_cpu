@@ -4,6 +4,7 @@
 module mem(
     input wire clk,
     input wire rst,
+    input wire rdy,
     input wire [`RegLen - 1 : 0] rd_data_i,
     input wire [`RegAddrLen - 1 : 0] rd_addr_i,
     input wire [`AddrLen -  1 : 0] mem_addr_i,
@@ -23,16 +24,18 @@ module mem(
     input wire mem_enable
     );
 reg nxt_load_or_not, nxt_store_or_not;
+
 always @ (posedge clk) begin
     if (rst) begin
         load_or_not <= `False;
         store_or_not <= `False;
     end
-    else begin
+    else if (rdy) begin
         load_or_not <= nxt_load_or_not;
         store_or_not <= nxt_store_or_not;
     end
 end
+
 always @ (*) begin
     rd_data_o = `ZERO_WORD;
     rd_addr_o = `RegAddrZero;

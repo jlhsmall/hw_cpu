@@ -4,6 +4,7 @@
 module ifetch(
     input wire clk,
     input wire rst,
+    input wire rdy,
     input wire [`AddrLen - 1 : 0] if_pc_i,
 
     output reg [`AddrLen - 1 : 0] if_pc_o,
@@ -17,26 +18,27 @@ module ifetch(
     input wire jump_or_not
 );
 
-reg [39:0] cache[`CacheSize - 1 : 0];
+reg [40:0] cache[`CacheSize - 1 : 0];
 reg valid[`CacheSize - 1 : 0];
 reg nxt_if_request;
 integer i;
 always @ (posedge clk) begin
-    if(rst) begin
+    if (rst) begin
         for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
         if_request <= `False;
     end
-    else if(jump_or_not) begin
-        if_request <= `False;
-    end
-    else begin
-        if (if_enable) begin
-            cache[if_pc_i[9:2]] <= {if_pc_i[17:10], if_inst_i};
-            valid[if_pc_i[9:2]] <= `True;
+    else if (rdy) begin
+        if(jump_or_not) begin
+            if_request <= `False;
         end
-        if_request <= nxt_if_request;
+        else begin
+            if (if_enable) begin
+                cache[if_pc_i[8:2]] <= {if_pc_i[17:9], if_inst_i};
+                valid[if_pc_i[8:2]] <= `True;
+            end
+            if_request <= nxt_if_request;
+        end
     end
-    
 end
 
 always @ (*) begin
@@ -57,8 +59,8 @@ always @ (*) begin
             end
         end
         else begin
-            if (valid[if_pc_i[9:2]] && cache[if_pc_i[9:2]][39:32] == if_pc_i[17:10]) begin
-                if_inst_o = cache[if_pc_i[9:2]][31:0];
+            if (valid[if_pc_i[8:2]] && cache[if_pc_i[8:2]][40:32] == if_pc_i[17:9]) begin
+                if_inst_o = cache[if_pc_i[8:2]][31:0];
                 if_pc_o = if_pc_i;
             end
             else begin
