@@ -34,21 +34,13 @@ always @ (posedge clk) begin
         ex_op <= `NOP;
     end
     else if (rdy) begin
-        if (jump_or_not) begin
-            ex_pc <= `ZERO_WORD;
-            ex_reg1 <= `ZERO_WORD;
-            ex_reg2 <= `ZERO_WORD;
-            ex_imm <= `ZERO_WORD;
-            ex_rd <= `ZERO_WORD;
-            ex_op <= `NOP;
-        end
-        else if(!id_ex_stall) begin
-            if (id_stall) begin
+        if(!id_ex_stall) begin
+            if (jump_or_not || id_stall) begin
                 ex_pc <= `ZERO_WORD;
                 ex_reg1 <= `ZERO_WORD;
                 ex_reg2 <= `ZERO_WORD;
                 ex_imm <= `ZERO_WORD;
-                ex_rd <= `RegAddrZero;
+                ex_rd <= `ZERO_WORD;
                 ex_op <= `NOP;
             end
             else begin

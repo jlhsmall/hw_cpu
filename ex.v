@@ -27,6 +27,7 @@ always @ (*) begin
     jump_or_not = `False;
     ex_stall = `False;
     if (!rst) begin
+        op_o = op;
         case (op)
             `LUI: begin
                 rd_data_o = imm;

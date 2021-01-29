@@ -20,13 +20,16 @@ always @ (posedge clk) begin
         id_pc <= `ZERO_WORD;
     end
     else if (rdy) begin
-        if (jump_or_not) begin
-            id_inst <= `ZERO_WORD;
-            id_pc <= `ZERO_WORD;
-        end
         if (!if_id_stall) begin
-            id_pc <= if_pc;
-            id_inst <= if_stall ? `ZERO_WORD : if_inst;
+            if (jump_or_not || if_stall) begin
+                id_inst <= `ZERO_WORD;
+                id_pc <= `ZERO_WORD;
+            end
+            else begin
+                id_pc <= if_pc;
+                id_inst <= if_inst;
+            end
+            
         end
     end
 end

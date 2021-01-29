@@ -19,13 +19,15 @@ always @ (posedge clk) begin
         pc_o <= `ZERO_WORD;
     end
     else if (rdy) begin
-        if (jump_or_not) begin
-            pc <= npc + 4;
-            pc_o <= npc;
-        end
-        else if (!pc_reg_stall) begin
-            pc_o <= pc;
-            pc <= pc + 4;
+        if (!pc_reg_stall) begin
+            if (jump_or_not) begin
+                pc <= npc + 4;
+                pc_o <= npc;
+            end
+            else begin
+                pc_o <= pc;
+                pc <= pc + 4;
+            end
         end
     end
 end

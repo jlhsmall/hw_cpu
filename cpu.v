@@ -106,7 +106,7 @@ wire if_stall, id_stall, ex_stall, mem_stall;
 
 //Instantiation
 pc_reg pc_reg0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .pc_reg_stall(pc_reg_stall),
-              .jump_or_not(jump_or_not), .npc(npc), .pc_o(pc)/*, .chip_enable(rom_ce_o)*/);
+              .jump_or_not(jump_or_not), .npc(npc), .pc_o(pc));
 
 ifetch if0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
           .if_pc_i(pc), .if_pc_o(if_pc), .if_inst_o(if_inst_o),.if_stall(if_stall),
