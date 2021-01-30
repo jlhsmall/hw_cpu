@@ -140,7 +140,7 @@ ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .ex_mem_stall(ex_mem_st
               .ex_rd_data(ex_rd_data), .ex_rd_addr(ex_rd_addr), .mem_addr_ex(mem_addr_ex), .ex_op(ex_op_o),
               .mem_rd_data(mem_rd_data_i), .mem_rd_addr(mem_rd_addr_i), .mem_addr_i(mem_addr_i), .mem_op(mem_op), .ex_stall(ex_stall));
               
-mem mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), 
+mem mem0(.rst(rst_in),
         .rd_data_i(mem_rd_data_i), .rd_addr_i(mem_rd_addr_i), .mem_addr_i(mem_addr_i), .op(mem_op),
         .rd_data_o(mem_rd_data_o), .rd_addr_o(mem_rd_addr_o), .rd_enable_o(mem_rd_enable_o), .mem_stall(mem_stall),
         .mem_addr_o(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),

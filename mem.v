@@ -2,9 +2,7 @@
 `include "config.v"
 
 module mem(
-    input wire clk,
     input wire rst,
-    input wire rdy,
     input wire [`RegLen - 1 : 0] rd_data_i,
     input wire [`RegAddrLen - 1 : 0] rd_addr_i,
     input wire [`AddrLen -  1 : 0] mem_addr_i,

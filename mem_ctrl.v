@@ -132,6 +132,7 @@ always @ (posedge clk, posedge rst) begin
         state <= `S_FREE;
         if_enable <= `False;
         mem_enable <= `False;
+        data_in <= `ZERO_WORD;
     end
     else if (rdy) begin
         case (state)
