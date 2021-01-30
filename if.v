@@ -15,7 +15,7 @@ module ifetch(
     output reg if_request,
     input wire [`InstLen - 1 : 0] if_inst_i,
     input wire if_enable,
-    input wire jump_or_not
+    input wire failed
 );
 
 reg [40:0] cache[`CacheSize - 1 : 0];
@@ -26,7 +26,7 @@ always @ (posedge clk) begin
         for (i = 0; i < `CacheSize; i = i + 1) valid[i] <= `False;
     end
     else if (rdy) begin
-        if (!jump_or_not) begin
+        if (!failed) begin
             if (if_enable) begin
                 cache[if_pc_i[8:2]] <= {if_pc_i[17:9], if_inst_i};
                 valid[if_pc_i[8:2]] <= `True;
@@ -41,7 +41,7 @@ always @ (*) begin
     if_stall = `False;
     if_addr = `ZERO_WORD;
     if_request = `False;
-    if(!rst && !jump_or_not) begin
+    if(!rst && !failed) begin
         if(if_enable) begin
             if_inst_o = if_inst_i;
             if_pc_o = if_pc_i;

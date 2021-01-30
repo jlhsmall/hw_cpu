@@ -24,7 +24,7 @@ module mem_ctrl(
     output reg mem_wr,	
     input wire [7:0] mem_din,
     
-    input wire jump_or_not
+    input wire failed
 );
 	
 reg [1:0] cnt, ncnt;
@@ -79,7 +79,7 @@ always @ (*) begin
                 end
             end
             `S_IF: begin
-                if (jump_or_not) begin
+                if (failed) begin
                     if (load_or_not) begin
                         mem_a = mem_addr;
                         next_state = `S_LOAD;
@@ -118,7 +118,7 @@ always @ (*) begin
                 else if (store_or_not) begin
                     next_state = `S_STORE;
                 end
-                else if (!jump_or_not && if_request) begin
+                else if (!failed && if_request) begin
                     mem_a = if_addr;
                     next_state = `S_IF;
                 end
@@ -154,7 +154,7 @@ always @ (posedge clk, posedge rst) begin
             end
             `S_IF: begin
                 mem_enable <= `False;
-                if (jump_or_not) if_enable <= `False;
+                if (failed) if_enable <= `False;
                 else begin
                     case (cnt)
                         2'b00: data_in[7:0] <= mem_din;

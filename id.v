@@ -29,12 +29,15 @@ module id(
     output reg [`RegAddrLen - 1 : 0] rd,
     output reg [`OpLen - 1 : 0] op,
     output reg id_stall,
-    input wire jump_or_not
+
+    input wire pred_jump_or_not_i,
+    output reg pred_jump_or_not_o,
+    input wire failed
     );
     
 //Decode: Get opcode, imm, rd, and the addr of rs1&rs2
 always @ (*) begin
-    if (rst || jump_or_not) begin
+    if (rst || failed) begin
         reg1_addr_o = `RegAddrZero;
         reg2_addr_o = `RegAddrZero;
     end
@@ -50,7 +53,8 @@ always @ (*) begin
     imm = `ZERO_WORD;
     rd = `RegAddrZero; 
     op = `NOP;
-    if (!rst && !jump_or_not) begin
+    pred_jump_or_not_o = `False;
+    if (!rst && !failed) begin
         pc_o = pc;
         case (inst[6:0])
             7'b0110111: begin
@@ -75,6 +79,7 @@ always @ (*) begin
                 imm = {{21{inst[31]}}, inst[30:20]};
             end
             7'b1100011: begin
+                pred_jump_or_not_o = pred_jump_or_not_i;
                 case (inst[14:12])
                     3'b000: begin
                         op = `BEQ;

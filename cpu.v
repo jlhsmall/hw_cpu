@@ -67,7 +67,7 @@ wire [`RegLen - 1 : 0] ex_reg1, ex_reg2, ex_imm;
 wire[`RegAddrLen - 1 : 0] ex_rd;
 wire [`AddrLen - 1 : 0] npc;
 //EX -> EX/MEM
-wire jump_or_not;
+wire failed;
 wire [`RegLen - 1 : 0] ex_rd_data;
 wire [`RegAddrLen - 1 : 0] ex_rd_addr;
 wire [`AddrLen - 1 : 0] mem_addr_ex;
@@ -103,38 +103,50 @@ wire [`RegLen - 1 : 0] write_data;
 wire pc_reg_stall, if_id_stall, id_ex_stall, ex_mem_stall;
 wire if_stall, id_stall, ex_stall, mem_stall;
 
+//Predictor
+wire pred_jump_or_not1, pred_jump_or_not2, pred_jump_or_not3, pred_jump_or_not4;
+wire [`AddrLen - 1 : 0] pred_pc;
+wire is_btype;
+wire jump_or_not;
+wire [3:0] ex_pc_bus;
 
 //Instantiation
+predictor predictor0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), 
+                    .if_pc(if_pc), .inst(if_inst_o), .pred_jump_or_not(pred_jump_or_not1), .pred_pc(pred_pc),
+                    .is_btype(is_btype), .jump_or_not(jump_or_not), .ex_pc_bus(ex_pc_bus));
 pc_reg pc_reg0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .pc_reg_stall(pc_reg_stall),
-              .jump_or_not(jump_or_not), .npc(npc), .pc_o(pc));
+              .pred_jump_or_not(pred_jump_or_not1), .pred_pc(pred_pc), .failed(failed) .npc(npc), .pc_o(pc));
 
 ifetch if0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
           .if_pc_i(pc), .if_pc_o(if_pc), .if_inst_o(if_inst_o),.if_stall(if_stall),
-          .if_addr(if_addr), .if_request(if_request), .if_inst_i(if_inst_i), .if_enable(if_enable), .jump_or_not(jump_or_not));
+          .if_addr(if_addr), .if_request(if_request), .if_inst_i(if_inst_i), .if_enable(if_enable), .failed(failed));
 
 if_id if_id0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .if_id_stall(if_id_stall),
-            .if_pc(if_pc), .if_inst(if_inst_o), .id_pc(id_pc), .id_inst(id_inst), .jump_or_not(jump_or_not), .if_stall(if_stall));
+            .if_pc(if_pc), .if_inst(if_inst_o), .id_pc(id_pc), .id_inst(id_inst), 
+            .pred_jump_or_not_i(pred_jump_or_not1), .pred_jump_or_not_o(pred_jump_or_not2), .failed(failed), .if_stall(if_stall));
 
 id id0(.rst(rst_in), 
       .pc(id_pc), .inst(id_inst), .reg1_data_i(reg1_data), .reg2_data_i(reg2_data), 
       .rd_data_ex(ex_rd_data), .rd_addr_ex(ex_rd_addr), .op_ex(ex_op_o), 
       .rd_enable_mem(mem_rd_enable_o), .rd_data_mem(mem_rd_data_o), .rd_addr_mem(mem_rd_addr_o), 
       .reg1_addr_o(reg1_addr), .reg1_read_enable(reg1_read_enable), .reg2_addr_o(reg2_addr), .reg2_read_enable(reg2_read_enable),
-      .pc_o(id_pc_o), .reg1(id_reg1), .reg2(id_reg2), .imm(id_imm), .rd(id_rd), .op(id_op), .id_stall(id_stall), .jump_or_not(jump_or_not));
+      .pc_o(id_pc_o), .reg1(id_reg1), .reg2(id_reg2), .imm(id_imm), .rd(id_rd), .op(id_op), .id_stall(id_stall),
+      .pred_jump_or_not_i(pred_jump_or_not2), .pred_jump_or_not_o(pred_jump_or_not3), .failed(failed));
       
 register register0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
                   .write_enable(write_enable), .write_addr(write_addr), .write_data(write_data),
                   .read_enable1(reg1_read_enable), .read_addr1(reg1_addr), .read_data1(reg1_data),
-                  .read_enable2(reg2_read_enable), .read_addr2(reg2_addr), .read_data2(reg2_data), .jump_or_not(jump_or_not));
+                  .read_enable2(reg2_read_enable), .read_addr2(reg2_addr), .read_data2(reg2_data), .failed(failed));
 
 id_ex id_ex0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .id_ex_stall(id_ex_stall), 
             .id_pc(id_pc_o), .id_reg1(id_reg1), .id_reg2(id_reg2), .id_imm(id_imm), .id_rd(id_rd), .id_op(id_op),
-            .ex_pc(ex_pc), .ex_reg1(ex_reg1), .ex_reg2(ex_reg2), .ex_imm(ex_imm), .ex_rd(ex_rd), .ex_op(ex_op), .jump_or_not(jump_or_not), .id_stall(id_stall));
+            .ex_pc(ex_pc), .ex_reg1(ex_reg1), .ex_reg2(ex_reg2), .ex_imm(ex_imm), .ex_rd(ex_rd), .ex_op(ex_op), 
+            .pred_jump_or_not_i(pred_jump_or_not3), .pred_jump_or_not_o(pred_jump_or_not4), .failed(failed), .id_stall(id_stall));
 
 ex ex0(.rst(rst_in), 
       .pc(ex_pc), .reg1(ex_reg1), .reg2(ex_reg2), .imm(ex_imm), .rd(ex_rd), .op(ex_op),
       .rd_data_o(ex_rd_data), .rd_addr(ex_rd_addr), .mem_addr(mem_addr_ex), .op_o(ex_op_o), 
-      .npc(npc), .jump_or_not(jump_or_not), .ex_stall(ex_stall));
+      .pred_jump_or_not(pred_jump_or_not4), .is_btype(is_btype), .jump_or_not(jump_or_not), .ex_pc_bus(ex_pc_bus), .npc(npc), .ex_stall(ex_stall));
       
 ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .ex_mem_stall(ex_mem_stall), 
               .ex_rd_data(ex_rd_data), .ex_rd_addr(ex_rd_addr), .mem_addr_ex(mem_addr_ex), .ex_op(ex_op_o),

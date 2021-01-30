@@ -77,5 +77,8 @@
 `define S_LOAD 2'b10
 `define S_STORE 2'b11
 
-//CACHE
+//Others
 `define CacheSize 128
+`define PredSize 128
+`define PredSizeLen 7
+`define PredBusZero 7'b0000000

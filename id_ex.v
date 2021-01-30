@@ -20,7 +20,10 @@ module id_ex(
     output reg [`RegLen - 1 : 0] ex_imm,
     output reg [`RegAddrLen - 1 : 0] ex_rd,
     output reg [`OpLen - 1 : 0] ex_op,
-    input wire jump_or_not,
+
+    input wire pred_jump_or_not_i,
+    output reg pred_jump_or_not_o,
+    input wire failed,
     input wire id_stall
     );
 
@@ -32,16 +35,18 @@ always @ (posedge clk) begin
         ex_imm <= `ZERO_WORD;
         ex_rd <= `ZERO_WORD;
         ex_op <= `NOP;
+        pred_jump_or_not_o <= `False;
     end
     else if (rdy) begin
         if(!id_ex_stall) begin
-            if (jump_or_not || id_stall) begin
+            if (failed || id_stall) begin
                 ex_pc <= `ZERO_WORD;
                 ex_reg1 <= `ZERO_WORD;
                 ex_reg2 <= `ZERO_WORD;
                 ex_imm <= `ZERO_WORD;
                 ex_rd <= `ZERO_WORD;
                 ex_op <= `NOP;
+                pred_jump_or_not_o <= `False;
             end
             else begin
                 ex_pc <= id_pc;
@@ -50,6 +55,7 @@ always @ (posedge clk) begin
                 ex_imm <= id_imm;
                 ex_rd <= id_rd;
                 ex_op <= id_op;
+                pred_jump_or_not_o <= pred_jump_or_not_i;
             end
         end
     end

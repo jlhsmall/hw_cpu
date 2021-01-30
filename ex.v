@@ -14,8 +14,12 @@ module ex(
     output reg [`AddrLen - 1 : 0] mem_addr,
     output reg [`OpLen - 1 : 0] op_o,
 
-    output reg [`RegLen - 1 : 0] npc,
+    input wire pred_jump_or_not,
+    output reg is_btype,
     output reg jump_or_not,
+    output reg ex_pc_bus,
+    output reg failed,
+    output reg [`RegLen - 1 : 0] npc,
     output reg ex_stall
     );
 always @ (*) begin
@@ -24,8 +28,10 @@ always @ (*) begin
     mem_addr = `ZERO_WORD;
     op_o = `NOP;
     npc = `ZERO_WORD;
+    is_btype = `False;
     jump_or_not = `False;
     ex_stall = `False;
+    failed = `False;
     if (!rst) begin
         op_o = op;
         case (op)
@@ -40,38 +46,66 @@ always @ (*) begin
             `JAL: begin
                 rd_data_o = pc + 4;
                 rd_addr = rd;
-                npc = pc + imm;
-                jump_or_not = `True;
             end
             `JALR: begin
                 rd_data_o = pc + 4;
                 rd_addr = rd;
                 npc = reg1 + imm;
-                jump_or_not = `True;
+                failed = `True;
             end
             `BEQ: begin
-                npc = reg1 == reg2 ? pc + imm : pc + 4;
-                jump_or_not = `True;
+                is_btype = `True;
+                jump_or_not = (reg1 == reg2);
+                if (pred_jump_or_not != jump_or_not) begin
+                    failed = `True;
+                    ex_pc_bus = pc[5:2];
+                    npc = reg1 == reg2 ? pc + imm : pc + 4;
+                end
             end
             `BNE: begin
-                npc = reg1 != reg2 ? pc + imm : pc + 4;
-                jump_or_not = `True;
+                is_btype = `True;
+                jump_or_not = (reg1 != reg2);
+                if (pred_jump_or_not != jump_or_not) begin
+                    failed = `True;
+                    ex_pc_bus = pc[5:2];
+                    npc = reg1 != reg2 ? pc + imm : pc + 4;
+                end
             end
             `BLT: begin
-                npc = ($signed(reg1)) < ($signed(reg2)) ? pc + imm : pc + 4;
-                jump_or_not = `True;
+                is_btype = `True;
+                jump_or_not = (($signed(reg1)) < ($signed(reg2)));
+                if (pred_jump_or_not != jump_or_not) begin
+                    failed = `True;
+                    ex_pc_bus = pc[5:2];
+                    npc = ($signed(reg1)) < ($signed(reg2)) ? pc + imm : pc + 4;
+                end
             end
             `BGE: begin
-                npc = ($signed(reg1)) >= ($signed(reg2)) ? pc + imm : pc + 4;
-                jump_or_not = `True;
+                is_btype = `True;
+                jump_or_not = (($signed(reg1)) >= ($signed(reg2)));
+                if (pred_jump_or_not != jump_or_not) begin
+                    failed = `True;
+                    ex_pc_bus = pc[5:2];
+                    npc = ($signed(reg1)) >= ($signed(reg2)) ? pc + imm : pc + 4;
+                end
             end
             `BLTU: begin
-                npc = reg1 < reg2 ? pc + imm : pc + 4;
-                jump_or_not = `True;
+                is_btype = `True;
+                jump_or_not = (reg1 < reg2);
+                if (pred_jump_or_not != jump_or_not)  begin
+                    failed = `True;
+                    ex_pc_bus = pc[5:2];
+                    npc = reg1 < reg2 ? pc + imm : pc + 4;
+                end
             end
             `BGEU: begin
-                npc = reg1 >= reg2 ? pc + imm : pc + 4;
-                jump_or_not = `True;
+                is_btype = `True;
+                jump_or_not = (reg1 >= reg2);
+                if (pred_jump_or_not != jump_or_not) begin
+                    failed = `True;
+                    ex_pc_bus = pc[5:2];
+                    npc = reg1 >= reg2 ? pc + imm : pc + 4;
+                end
             end
             `LB: begin
                 mem_addr = reg1 + imm;

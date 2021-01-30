@@ -18,7 +18,7 @@ module register(
     input wire [`RegAddrLen - 1 : 0] read_addr2,
     output reg [`RegLen - 1 : 0] read_data2,
 
-    input wire jump_or_not
+    input wire failed
     );
     
 reg[`RegLen - 1 : 0] regs[`RegNum - 1 : 0];
@@ -40,7 +40,7 @@ end
 //read 1
 always @ (*) begin
     read_data1 = `ZERO_WORD;
-    if (!rst && !jump_or_not) begin
+    if (!rst && !failed) begin
         if (read_enable1 && read_addr1 != `RegAddrZero) begin
             if (read_addr1 == write_addr && write_enable == `WriteEnable)
                 read_data1 = write_data;
@@ -53,7 +53,7 @@ end
 //read 2
 always @ (*) begin
     read_data2 = `ZERO_WORD;
-    if (!rst && !jump_or_not) begin
+    if (!rst && !failed) begin
         if (read_enable2 && read_addr2 != `RegAddrZero) begin
             if (read_addr2 == write_addr && write_enable == `WriteEnable)
                 read_data2 = write_data;
