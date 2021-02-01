@@ -113,9 +113,9 @@ wire [3:0] ex_pc_bus;
 //Instantiation
 predictor predictor0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), 
                     .if_pc(if_pc), .inst(if_inst_o), .pred_jump_or_not(pred_jump_or_not1), .pred_pc(pred_pc),
-                    .is_btype(is_btype), .jump_or_not(jump_or_not), .ex_pc_bus(ex_pc_bus));
+                    .is_btype(is_btype), .jump_or_not(jump_or_not), .ex_pc_bus(ex_pc_bus), .failed(failed));
 pc_reg pc_reg0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .pc_reg_stall(pc_reg_stall),
-              .pred_jump_or_not(pred_jump_or_not1), .pred_pc(pred_pc), .failed(failed) .npc(npc), .pc_o(pc));
+              .pred_jump_or_not(pred_jump_or_not1), .pred_pc(pred_pc), .failed(failed), .npc(npc), .pc_o(pc));
 
 ifetch if0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
           .if_pc_i(pc), .if_pc_o(if_pc), .if_inst_o(if_inst_o),.if_stall(if_stall),
@@ -146,7 +146,7 @@ id_ex id_ex0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .id_ex_stall(id_ex_stall)
 ex ex0(.rst(rst_in), 
       .pc(ex_pc), .reg1(ex_reg1), .reg2(ex_reg2), .imm(ex_imm), .rd(ex_rd), .op(ex_op),
       .rd_data_o(ex_rd_data), .rd_addr(ex_rd_addr), .mem_addr(mem_addr_ex), .op_o(ex_op_o), 
-      .pred_jump_or_not(pred_jump_or_not4), .is_btype(is_btype), .jump_or_not(jump_or_not), .ex_pc_bus(ex_pc_bus), .npc(npc), .ex_stall(ex_stall));
+      .pred_jump_or_not(pred_jump_or_not4), .is_btype(is_btype), .jump_or_not(jump_or_not), .ex_pc_bus(ex_pc_bus), .failed(failed), .npc(npc), .ex_stall(ex_stall));
       
 ex_mem ex_mem0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .ex_mem_stall(ex_mem_stall), 
               .ex_rd_data(ex_rd_data), .ex_rd_addr(ex_rd_addr), .mem_addr_ex(mem_addr_ex), .ex_op(ex_op_o),
@@ -166,7 +166,7 @@ mem_ctrl mem_ctrl0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
                   .if_addr(if_addr), .if_request(if_request), .if_inst(if_inst_i), .if_enable(if_enable),
                   .mem_addr(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),
                   .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable),
-                  .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din), .jump_or_not(jump_or_not));
+                  .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din), .failed(failed));
 
 stall stall0(.rst(rst_in),
             .if_stall(if_stall), .id_stall(id_stall), .ex_stall(ex_stall), .mem_stall(mem_stall),

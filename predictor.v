@@ -6,19 +6,18 @@ module predictor(
     input wire [`InstLen - 1 : 0] inst,
     output reg pred_jump_or_not,
     output reg [`AddrLen - 1 : 0] pred_pc,
-    input wire is_btype;
+    input wire is_btype,
     input wire jump_or_not,
-    input wire [3:0] ex_pc_bus
-)
+    input wire [3:0] ex_pc_bus,
+    input wire failed
+);
 reg [1:0] pred[`PredSize - 1 : 0];//3 bits for history, 4 bits for pc
 reg [2:0] global;
 integer i;
-reg [`PredSizeLen - 1 : 0] bus;
 reg [`RegLen - 1 : 0] imm;
 always @ (*) begin
     pred_jump_or_not = `False;
     pred_pc = `ZERO_WORD;
-    bus = `PredBusZero;
     imm = `ZERO_WORD;
     if (!rst && !failed) begin
         if (inst[6]) begin
@@ -29,8 +28,7 @@ always @ (*) begin
             end
             else if (!inst[2]) begin//b-type
                 imm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
-                bus = {global,pc[5:2]};
-                if(pred[bus][1]) begin
+                if(pred[{global, if_pc[5:2]}][1]) begin
                     pred_jump_or_not = `True;
                     pred_pc = if_pc + imm;
                 end
@@ -54,3 +52,4 @@ always @ (posedge clk) begin
         end
     end
 end
+endmodule

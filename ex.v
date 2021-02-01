@@ -17,7 +17,7 @@ module ex(
     input wire pred_jump_or_not,
     output reg is_btype,
     output reg jump_or_not,
-    output reg ex_pc_bus,
+    output reg [3:0] ex_pc_bus,
     output reg failed,
     output reg [`RegLen - 1 : 0] npc,
     output reg ex_stall
@@ -27,11 +27,12 @@ always @ (*) begin
     rd_addr = `RegAddrZero;
     mem_addr = `ZERO_WORD;
     op_o = `NOP;
-    npc = `ZERO_WORD;
     is_btype = `False;
     jump_or_not = `False;
-    ex_stall = `False;
+    ex_pc_bus = 4'h0;
     failed = `False;
+    npc = `ZERO_WORD;
+    ex_stall = `False;
     if (!rst) begin
         op_o = op;
         case (op)

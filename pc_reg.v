@@ -28,7 +28,7 @@ always @ (posedge clk) begin
             end
             else if (pred_jump_or_not) begin
                 pc <= pred_pc + 4;
-                pc_o <= pred_pc
+                pc_o <= pred_pc;
             end
             else begin
                 pc_o <= pc;

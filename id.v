@@ -287,7 +287,7 @@ always @ (*) begin
     id_stall = `False;
     reg1 = `ZERO_WORD;
     reg2 = `ZERO_WORD;
-    if (!rst && !jump_or_not) begin
+    if (!rst && !failed) begin
         if (reg1_read_enable) begin
             if (rd_addr_ex != `RegAddrZero && rd_addr_ex == reg1_addr_o) begin
                 if (op_ex >= `LB) id_stall = `True;
