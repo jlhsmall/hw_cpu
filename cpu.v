@@ -100,7 +100,7 @@ wire [`RegAddrLen - 1 : 0] write_addr;
 wire [`RegLen - 1 : 0] write_data;
 
 //STALL
-wire pc_reg_stall, if_id_stall, id_ex_stall, ex_mem_stall;
+wire pc_reg_stall, if_id_stall, id_ex_stall, ex_mem_stall, mem_wb_stall;
 wire if_stall, id_stall, ex_stall, mem_stall;
 
 //Predictor
@@ -158,7 +158,7 @@ mem mem0(.rst(rst_in),
         .mem_addr_o(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),
         .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable));
         
-mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
+mem_wb mem_wb0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in), .mem_wb_stall(mem_wb_stall),
               .mem_rd_data(mem_rd_data_o), .mem_rd_addr(mem_rd_addr_o), .mem_rd_enable(mem_rd_enable_o),
               .wb_rd_data(write_data), .wb_rd_addr(write_addr), .wb_rd_enable(write_enable), .mem_stall(mem_stall));
 
@@ -166,10 +166,10 @@ mem_ctrl mem_ctrl0(.clk(clk_in), .rst(rst_in), .rdy(rdy_in),
                   .if_addr(if_addr), .if_request(if_request), .if_inst(if_inst_i), .if_enable(if_enable),
                   .mem_addr(mem_addr_o), .load_or_not(load_or_not), .store_or_not(store_or_not), .num_of_bytes(num_of_bytes),
                   .store_data(store_data), .load_data(load_data), .mem_enable(mem_enable),
-                  .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din), .failed(failed));
+                  .mem_dout(mem_dout), .mem_a(mem_a), .mem_wr(mem_wr), .mem_din(mem_din), .failed(failed), .io_buffer_full(io_buffer_full));
 
 stall stall0(.rst(rst_in),
             .if_stall(if_stall), .id_stall(id_stall), .ex_stall(ex_stall), .mem_stall(mem_stall),
-            .pc_reg_stall(pc_reg_stall), .if_id_stall(if_id_stall), .id_ex_stall(id_ex_stall), .ex_mem_stall(ex_mem_stall));
+            .pc_reg_stall(pc_reg_stall), .if_id_stall(if_id_stall), .id_ex_stall(id_ex_stall), .ex_mem_stall(ex_mem_stall), .mem_wb_stall(mem_wb_stall), .io_buffer_full(io_buffer_full));
 assign  dbgreg_dout = `ZERO_WORD;
 endmodule

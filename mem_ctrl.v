@@ -24,7 +24,8 @@ module mem_ctrl(
     output reg mem_wr,	
     input wire [7:0] mem_din,
     
-    input wire failed
+    input wire failed,
+    input wire io_buffer_full
 );
 	
 reg [1:0] cnt, ncnt;
@@ -127,6 +128,7 @@ always @ (*) begin
     end
 end
 always @ (posedge clk, posedge rst) begin
+if (!io_buffer_full) begin
     if (rst) begin
         cnt <= 2'b00;
         state <= `S_FREE;
@@ -170,5 +172,6 @@ always @ (posedge clk, posedge rst) begin
         state <= next_state;
         cnt <= ncnt;
     end
+end
 end
 endmodule
